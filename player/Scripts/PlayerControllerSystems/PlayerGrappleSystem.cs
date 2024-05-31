@@ -11,9 +11,9 @@ public partial class PlayerController
             return;
         }
 
-        this.OverlapSphere3D(topPivot.GlobalPosition, grappleMaxDistance, out OverlapShapeInfo3D info, grappleable, true);
+        this.OverlapSphere3D(topPivot.GlobalPosition, grappleMaxDistance, out OverlapShape3D info, grappleable, true);
 
-        List<RayCastHitInfo3D> hits = new();
+        List<RaycastHit3D> hits = new();
 
         for (int i = 0; i < info.allColliders.Length; i++)
         {
@@ -23,7 +23,7 @@ public partial class PlayerController
 
             Vector3 direciton = (collider.GlobalPosition - topPivot.GlobalPosition).Normalized();
 
-            if (this.RayCast3D(topPivot.GlobalPosition, direciton, out RayCastHitInfo3D hit, grappleMaxDistance, grappleable, true))
+            if (this.RayCast3D(topPivot.GlobalPosition, direciton, out RaycastHit3D hit, grappleMaxDistance, grappleable, true))
             {
                 if (hit.colliderInfo.collider != collider) { continue; }
 

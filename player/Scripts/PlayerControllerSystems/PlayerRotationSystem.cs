@@ -1,4 +1,5 @@
 ﻿using Godot;
+using MEC;
 using System.Collections.Generic;
 
 public partial class PlayerController
@@ -92,7 +93,7 @@ public partial class PlayerController
 
             VisualsDirection = dir;
 
-            yield return new WaitForFixedUpdate();
+            yield return Timing.WaitForOneFrame;
         }
 
         this.SetForward(direction);

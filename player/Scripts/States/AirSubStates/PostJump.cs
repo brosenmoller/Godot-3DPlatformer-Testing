@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -20,6 +20,7 @@ namespace PlayerStates
                 ctx.StopCoroutine(ctx.jumpCoroutine);
                 ctx.jumpCoroutine = null;
             }
+
             ctx.lockRotation = false;
         }
 
@@ -39,9 +40,9 @@ namespace PlayerStates
 
         private void ModifyGravity()
         {
-            if (ctx.Rigidbody.useGravity)
+            if (ctx.useGravity)
             {
-                ctx.AddForceImmediate(Vector3.Up, Physics.gravity.Y * fallMultiplier);
+                ctx.AddForceImmediate(Vector3.Up, PlayerController.GRAVITY * fallMultiplier);
             }
         }
 

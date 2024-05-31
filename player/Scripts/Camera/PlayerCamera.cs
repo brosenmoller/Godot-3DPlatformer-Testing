@@ -1,4 +1,4 @@
-using UnityEngine;
+using Godot;
 using Cinemachine;
 using UnityEngine.InputSystem;
 using System.Collections;
@@ -151,7 +151,7 @@ public class PlayerCamera : MonoBehaviour
     {
         Vector3 cameraDirection = (GlobalPosition - cameraLook.position).Normalized();
 
-        float step = cameraLookSpeed * Time.fixedDeltaTime;
+        float step = cameraLookSpeed * (float)ctx.GetPhysicsProcessDeltaTime();
         cameraLook.forward = Vector3.Lerp(cameraLook.forward, cameraDirection, step);
     }
 
@@ -176,19 +176,19 @@ public class PlayerCamera : MonoBehaviour
 
         if (inputDevice is Mouse)
         {
-            rotation.Y += cameraInput.X * inputSensitivityMouse.X * Time.fixedDeltaTime * xMultiplier;
-            rotation.X += cameraInput.Y * inputSensitivityMouse.Y * Time.fixedDeltaTime * yMultiplier;
+            rotation.Y += cameraInput.X * inputSensitivityMouse.X * (float)ctx.GetPhysicsProcessDeltaTime(); * xMultiplier;
+            rotation.X += cameraInput.Y * inputSensitivityMouse.Y * (float)ctx.GetPhysicsProcessDeltaTime(); * yMultiplier;
         }
         else if (inputDevice is Gamepad)
         {
-            rotation.Y += cameraInput.X * inputSensitivityGamePad.X * Time.fixedDeltaTime * xMultiplier;
-            rotation.X += cameraInput.Y * inputSensitivityGamePad.Y * Time.fixedDeltaTime * yMultiplier;
+            rotation.Y += cameraInput.X * inputSensitivityGamePad.X * (float)ctx.GetPhysicsProcessDeltaTime(); * xMultiplier;
+            rotation.X += cameraInput.Y * inputSensitivityGamePad.Y * (float)ctx.GetPhysicsProcessDeltaTime(); * yMultiplier;
         }
 
         rotation.X = Mathf.Clamp(rotation.X, clampAngleMin, clampAngleMax);
 
         Quaternion orbitQuaternion = Quaternion.Euler(rotation.X, rotation.Y, 0.0f);
-        transform.rotation = Quaternion.Lerp(transform.rotation, orbitQuaternion, Time.fixedDeltaTime * 10);
+        transform.rotation = Quaternion.Lerp(transform.rotation, orbitQuaternion, (float)ctx.GetPhysicsProcessDeltaTime(); * 10);
     }
 
     private Vector3 CalculateDesiredCameraLookPosition()
@@ -223,7 +223,7 @@ public class PlayerCamera : MonoBehaviour
             // Move Gradually backwards
             if (Mathf.Abs(cameraLookOffset.Z) > Mathf.Abs(currentCameraLookOffset.Z))
             {
-                float step = returnToNormalAfterCollisionSpeed * Time.fixedDeltaTime;
+                float step = returnToNormalAfterCollisionSpeed * (float)ctx.GetPhysicsProcessDeltaTime();
                 currentCameraLookOffset = Vector3.SmoothDamp(currentCameraLookOffset, cameraLookOffset, ref smoothVelocity, step);
             }
         }
@@ -409,20 +409,20 @@ public class PlayerCamera : MonoBehaviour
         }
     }
 
-    private IEnumerator RecenteringCameraLerp()
+    private IEnumerator<double> RecenteringCameraLerp()
     {
         Vector3 startForward = Transform.Forward();
         Vector3 endForward = player.Transform.Forward();
 
-        YieldInstruction yieldInstruction = new WaitForFixedUpdate();
+        YieldInstruction yieldInstruction = Timing.WaitForOneFrame;
 
-        float angle = Vector3.Angle(Transform.Forward(), player.Transform.Forward());
+        float angle = VectorExtensions.Angle(Transform.Forward(), player.Transform.Forward());
         float duration = angle / recenteringSpeed;
 
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.fixedDeltaTime / duration;
+            t += (float)ctx.GetPhysicsProcessDeltaTime(); / duration;
 
             Transform.Forward() = Vector3.Lerp(startForward, endForward, Mathf.Pow(t, 1.5f));
 
@@ -432,16 +432,16 @@ public class PlayerCamera : MonoBehaviour
         recenterRoutine = null;
     }
 
-    private IEnumerator RecenteringCamera()
+    private IEnumerator<double> RecenteringCamera()
     {
-        YieldInstruction yieldInstruction = new WaitForFixedUpdate();
+        YieldInstruction yieldInstruction = Timing.WaitForOneFrame;
 
         while (!transform.localRotation.eulerAngles.ApproximatelyEqual(player.transform.eulerAngles))
         {
-            float yStep = recenteringSpeedX * Time.fixedDeltaTime;
+            float yStep = recenteringSpeedX * (float)ctx.GetPhysicsProcessDeltaTime();
             float yRotation = Mathf.MoveTowards(transform.rotation.eulerAngles.Y, player.transform.eulerAngles.Y, yStep);
 
-            float xStep = recenteringSpeedY * Time.fixedDeltaTime;
+            float xStep = recenteringSpeedY * (float)ctx.GetPhysicsProcessDeltaTime();
             float xRotation = Mathf.MoveTowards(transform.rotation.eulerAngles.X, player.transform.eulerAngles.X, xStep);
 
             transform.rotation = Quaternion.Euler(xRotation, yRotation, 0.0f);

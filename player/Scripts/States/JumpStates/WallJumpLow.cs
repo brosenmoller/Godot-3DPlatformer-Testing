@@ -1,4 +1,6 @@
-﻿namespace PlayerStates
+﻿using MEC;
+
+namespace PlayerStates
 {
     public class WallJumpLow : WallJump
     {
@@ -8,7 +10,7 @@
 
             ctx.wallClimbsSinceGrounded++;
             ctx.canClimb = true;
-            ctx.jumpCoroutine = ctx.StartCoroutine(WallJumpRoutine(ctx.maxJumpTime/2));
+            ctx.jumpCoroutine = Timing.RunCoroutine(WallJumpRoutine(ctx.maxJumpTime/2), Segment.PhysicsProcess);
             ctx.jumpPressCanTrigger = false;
         }
     }

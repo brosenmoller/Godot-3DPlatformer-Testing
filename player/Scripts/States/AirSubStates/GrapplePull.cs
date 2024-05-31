@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -15,34 +15,41 @@ namespace PlayerStates
 
             ctx.grapplePullHasReachedDestination = false;
             ctx.ZeroVelocity();
-            ctx.Rigidbody.useGravity = false;
+
+            ctx.useGravity = false;
+
             ctx.lastGrappleObject = ctx.activeGrapplePoint;
-            direction = (ctx.activeGrapplePoint.position - ctx.GlobalPosition).Normalized();
-            ctx.Transform.Forward() = direction;
-            ctx.visuals.forward = direction;
+
+            direction = (ctx.activeGrapplePoint.GlobalPosition - ctx.GlobalPosition).Normalized();
+
+            ctx.SetForward(direction);
+            ctx.visuals.SetForward(direction);
+
             ctx.VisualsDirection = direction;
             ctx.velocityLibrary[PlayerVelocitySource.grapple] = 9;
             ctx.maintainVelocityLibrary[PlayerVelocitySource.grapple] = true;
             startPoint = ctx.GlobalPosition;
             time = 0;
-            float dist = Vector3.Distance(ctx.GlobalPosition, ctx.activeGrapplePoint.position);
+            float dist = ctx.GlobalPosition.DistanceTo(ctx.activeGrapplePoint.GlobalPosition);
             desiredTime = Mathf.Lerp(0.2f, ctx.desiredTimeToReachGrapple, Mathf.InverseLerp(ctx.grappleMinDistance, ctx.grappleMaxDistance, dist));
         }
 
         public override void OnPhysicsUpdate()
         {
-            time += Time.fixedDeltaTime;
-            ctx.GlobalPosition = Vector3.Lerp(startPoint, ctx.activeGrapplePoint.position, time / desiredTime);
+            time += (float)ctx.GetPhysicsProcessDeltaTime();
+
+            ctx.GlobalPosition = startPoint.Lerp(ctx.activeGrapplePoint.GlobalPosition, time / desiredTime);
+
             if(time >= desiredTime)
             {
-                ctx.GlobalPosition = ctx.activeGrapplePoint.position;
+                ctx.GlobalPosition = ctx.activeGrapplePoint.GlobalPosition;
                 ctx.grapplePullHasReachedDestination = true;
             }
         }
 
         public override void OnExit()
         {
-            ctx.Rigidbody.useGravity = true;
+            ctx.useGravity = true;
             ctx.Velocity = direction * 12;
             ctx.velocityLibrary[PlayerVelocitySource.grapple] = 3;
             ctx.maintainVelocityLibrary[PlayerVelocitySource.grapple] = false;

@@ -320,7 +320,7 @@ public partial class PlayerController
                 Vector3 offset = forwardHit.normal * 0.64f + Vector3.Down;
                 Vector3 pos = new Vector3(forwardHit.point.X, downHit.point.Y, forwardHit.point.Z) + offset;
 
-                if (!this.OverlapCapsule3D(pos, 0.5f, 1.0f, out OverlapShapeInfo3D info, GroundLayer))
+                if (!this.OverlapCapsule3D(pos, 0.5f, 1.0f, out OverlapShape3D info, GroundLayer))
                 {
                     return false;
                 }
@@ -361,7 +361,7 @@ public partial class PlayerController
 
         Vector3 middle = GlobalPosition + new Vector3(0f, -0.25f, 0f);
 
-        this.OverlapSphere3D(middle, 0.5f, out OverlapShapeInfo3D hitInfo, PoleLayer, true);
+        this.OverlapSphere3D(middle, 0.5f, out OverlapShape3D hitInfo, PoleLayer, true);
 
         if (hitInfo.allColliders.Length != 0)
         {
@@ -398,7 +398,7 @@ public partial class PlayerController
     {
         if (poleLockTimer.IsRunning) { return false; }
 
-        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShapeInfo3D overlapInfo, PoleLayer, true))
+        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShape3D overlapInfo, PoleLayer, true))
         {
             return false;
         }
@@ -522,7 +522,7 @@ public partial class PlayerController
 
     private bool WallClimbStartCheckerRaycast(bool climbCheck, Vector3 rayStartOffset = new())
     {
-        RayCastHitInfo3D hit = WallRaychecks(0.5f, rayStartOffset);
+        RaycastHit3D hit = WallRaychecks(0.5f, rayStartOffset);
 
         if (hit.colliderInfo.collider != null)
         {
@@ -551,7 +551,7 @@ public partial class PlayerController
 
     private bool WallClimbRevalidCheckerRaycast(Vector3 rayStartOffset = new())
     {
-        RayCastHitInfo3D hit = WallRaychecks(1.3f, rayStartOffset);
+        RaycastHit3D hit = WallRaychecks(1.3f, rayStartOffset);
 
         if (hit.colliderInfo.collider != null)
         {
@@ -569,7 +569,7 @@ public partial class PlayerController
     }
 
 
-    private RayCastHitInfo3D WallRaychecks(float dist, Vector3 rayStartOffset)
+    private RaycastHit3D WallRaychecks(float dist, Vector3 rayStartOffset)
     {
         Vector3 rayForwardStart = (GlobalPosition) + visuals.Transform.Forward() * 0.2f;
         rayForwardStart += rayStartOffset;
@@ -652,7 +652,7 @@ public partial class PlayerController
     {
         if (swingLockTimer.IsRunning) { return false; }
 
-        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShapeInfo3D info, grappleable, true))
+        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShape3D info, grappleable, true))
         {
             return false;
         }

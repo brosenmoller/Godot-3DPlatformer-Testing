@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -8,13 +8,13 @@ namespace PlayerStates
         {
             ctx.InvokeOnPole();
 
-            ctx.Rigidbody.useGravity = false;
+            ctx.useGravity = false;
             ctx.Velocity = Vector3.Zero;
-            Vector3 poleXZ = ctx.Pole.position;
+            Vector3 poleXZ = ctx.Pole.GlobalPosition;
             poleXZ.Y = 0;
             Vector3 transfromXZ = ctx.GlobalPosition;
             transfromXZ.Y = 0;
-            ctx.Transform.Forward() = (poleXZ - transfromXZ).Normalized();
+            ctx.SetForward((poleXZ - transfromXZ).Normalized());
             Vector3 direction = (transfromXZ - poleXZ).Normalized();
             Vector3 position = poleXZ + (direction * PlayerController.POLEDISTANCE);
             position.Y = ctx.PoleStartHeight;
@@ -23,11 +23,12 @@ namespace PlayerStates
 
         public override void OnPhysicsUpdate()
         {
-            Vector3 poleXZ = ctx.Pole.position;
+            Vector3 poleXZ = ctx.Pole.GlobalPosition;
             poleXZ.Y = 0;
             Vector3 transfromXZ = ctx.GlobalPosition;
             transfromXZ.Y = 0;
-            ctx.Transform.Forward() = (poleXZ - transfromXZ).Normalized();
+
+            ctx.SetForward((poleXZ - transfromXZ).Normalized());
 
             Vector3 direction = (transfromXZ - poleXZ).Normalized();
 
@@ -35,29 +36,29 @@ namespace PlayerStates
 
             if (ctx.MovementInput.X > 0.3f)
             {
-                direction = Quaternion.AngleAxis(-PlayerController.POLETURNSPEED, Vector3.Up) * direction;
+                direction = new Quaternion(Vector3.Up, -PlayerController.POLETURNSPEED) * direction;
             }
             if (ctx.MovementInput.X < -0.3f)
             {
-                direction = Quaternion.AngleAxis(PlayerController.POLETURNSPEED, Vector3.Up) * direction;
+                direction = new Quaternion(Vector3.Up, PlayerController.POLETURNSPEED) * direction;
             }
             if (ctx.MovementInput.Y > 0.3f)
             {
-                if (this.RayCast3D(new Vector3(ctx.GlobalPosition.X, yPos, ctx.GlobalPosition.Z), ctx.Transform.Forward(), out var hit, 0.7f, ctx.PoleLayer, QueryTriggerInteraction.Collide))
+                if (ctx.RayCast3D(new Vector3(ctx.GlobalPosition.X, yPos, ctx.GlobalPosition.Z), ctx.Transform.Forward(), out var hit, 0.7f, ctx.PoleLayer, true))
                 {
-                    if (hit.colliderObject.tag == ctx.poleTag)
+                    if (hit.colliderInfo.collider.IsInGroup(ctx.poleTag))
                     {
-                        yPos += PlayerController.POLECLIMBSPEED * Time.fixedDeltaTime;
+                        yPos += PlayerController.POLECLIMBSPEED * (float)ctx.GetPhysicsProcessDeltaTime();
                     }
                 }
             }
             if (ctx.MovementInput.Y < -0.3f)
             {
-                if (this.RayCast3D(new Vector3(ctx.GlobalPosition.X, yPos - 0.1f, ctx.GlobalPosition.Z), ctx.Transform.Forward(), out var hit, 0.7f, ctx.PoleLayer, QueryTriggerInteraction.Collide))
+                if (ctx.RayCast3D(new Vector3(ctx.GlobalPosition.X, yPos - 0.1f, ctx.GlobalPosition.Z), ctx.Transform.Forward(), out var hit, 0.7f, ctx.PoleLayer, true))
                 {
-                    if (hit.colliderObject.tag == ctx.poleTag)
+                    if (hit.colliderInfo.collider.IsInGroup(ctx.poleTag))
                     {
-                        yPos -= PlayerController.POLECLIMBSPEED * Time.fixedDeltaTime;
+                        yPos -= PlayerController.POLECLIMBSPEED * (float)ctx.GetPhysicsProcessDeltaTime();
                     }
                 }
 
@@ -70,7 +71,7 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.Rigidbody.useGravity = true;
+            ctx.useGravity = true;
             ctx.poleLockTimer.Reset();
             ctx.canClimb = true;
             ctx.oldWallNormal = new();

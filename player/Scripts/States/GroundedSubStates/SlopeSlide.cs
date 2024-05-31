@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -7,7 +7,7 @@ namespace PlayerStates
         public override void OnPhysicsUpdate()
         {
             SlopeSlideBehaviour();
-            ctx.velocityLibrary[PlayerVelocitySource.slide] += 1 * ctx.SlopeAngle * 0.05f * Time.fixedDeltaTime;
+            ctx.velocityLibrary[PlayerVelocitySource.slide] += 1 * ctx.SlopeAngle * 0.05f * (float)ctx.GetPhysicsProcessDeltaTime();
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] < 0) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 0; }
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] > 14) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 14; }
 
@@ -16,9 +16,9 @@ namespace PlayerStates
 
         private void SlopeSlideBehaviour()
         {
-            ctx.Velocity += Physics.gravity.Y * 1.5f * Time.fixedDeltaTime * Vector3.Up;
+            ctx.Velocity += PlayerController.GRAVITY * 1.5f * (float)ctx.GetPhysicsProcessDeltaTime() * Vector3.Up;
             //Add force that goes down the slope
-            Vector3 DownPlane = ctx.ProjectOnSlope(80 * Time.fixedDeltaTime * Vector3.Down);
+            Vector3 DownPlane = ctx.ProjectOnSlope(80 * (float)ctx.GetPhysicsProcessDeltaTime() * Vector3.Down);
             ctx.Velocity += DownPlane;
 
             //make sure the speed won't be clamped to 0
@@ -36,14 +36,14 @@ namespace PlayerStates
             {
                 //remove the downward force frome the input because we don't need to add extra down force
                 input -= DownPlane.Normalized();
-                ctx.Velocity += 2 * ctx.moveSpeed * Time.fixedDeltaTime * input;
+                ctx.Velocity += 2 * ctx.moveSpeed * (float)ctx.GetPhysicsProcessDeltaTime() * input;
             }
 
             Vector3 flatVelocity = ctx.GetFlatVelocity();
 
             //Rotate the player root and visuals to match the velocity
-            ctx.Transform.Forward() = flatVelocity;
-            ctx.visuals.forward = ctx.Transform.Forward();
+            ctx.SetForward(flatVelocity);
+            ctx.visuals.SetForward(ctx.Transform.Forward());
         }
     }
 }

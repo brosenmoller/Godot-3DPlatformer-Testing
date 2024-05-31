@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -23,14 +23,15 @@ namespace PlayerStates
             //Gravity Mod
             ModifyGravity();
 
-            Collider[] colliders = Physics.OverlapBox(ctx.GlobalPosition, new Vector3(0.5f,1.2f,0.5f));
-            foreach(Collider c in colliders)
-            {
-                if(c.tag == "Destructable")
-                {
-                    GameObject.Destroy(c.gameObject);
-                }
-            }
+            //Collider[] colliders = Physics.OverlapBox(ctx.GlobalPosition, new Vector3(0.5f,1.2f,0.5f));
+
+            //foreach(Collider c in colliders)
+            //{
+            //    if(c.tag == "Destructable")
+            //    {
+            //        GameObject.Destroy(c.gameObject);
+            //    }
+            //}
 
 
             float rotationSpeed = ctx.AirRotaionBySpeed();
@@ -49,9 +50,9 @@ namespace PlayerStates
 
         private void ModifyGravity()
         {
-            if (ctx.Rigidbody.useGravity)
+            if (ctx.useGravity)
             {
-                ctx.AddForceImmediate(Vector3.Up, Physics.gravity.Y * fallMultiplier);
+                ctx.AddForceImmediate(Vector3.Up, PlayerController.GRAVITY * fallMultiplier);
             }
         }
     }

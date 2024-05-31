@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using Godot;
 
 public class PlayerCameraTarget : MonoBehaviour
 {
@@ -89,7 +89,7 @@ public class PlayerCameraTarget : MonoBehaviour
     {
         Vector3 newCameraBasePostion = cameraBase.position;
 
-        float flatStep = cameraMoveSpeedFlat * Time.fixedDeltaTime;
+        float flatStep = cameraMoveSpeedFlat * (float)ctx.GetPhysicsProcessDeltaTime();
         newCameraBasePostion.X = Mathf.MoveTowards(cameraBase.position.X, GlobalPosition.X, flatStep);
         newCameraBasePostion.Z = Mathf.MoveTowards(cameraBase.position.Z, GlobalPosition.Z, flatStep);
 
@@ -97,7 +97,7 @@ public class PlayerCameraTarget : MonoBehaviour
         float yDistance01 = Mathf.InverseLerp(0, distanceVerticalTillMaxSpeed, yDistance);
         float ySpeed = Mathf.Lerp(cameraMoveSpeedVerticalMin, cameraMoveSpeedVerticalMax, EaseOut(yDistance01, verticalMoveLerpStrength));
 
-        float verticalStep = ySpeed * Time.fixedDeltaTime;
+        float verticalStep = ySpeed * (float)ctx.GetPhysicsProcessDeltaTime();
         newCameraBasePostion.Y = Mathf.MoveTowards(cameraBase.position.Y, GlobalPosition.Y, verticalStep);
 
         cameraBase.position = newCameraBasePostion;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates 
 {
@@ -6,7 +6,7 @@ namespace PlayerStates
     {
         public override void OnEnter()
         {
-            ctx.slopeJumpHeight = Mathf.Infinity;
+            ctx.slopeJumpHeight = Mathf.Inf;
         }
 
         public override void OnUpdate()
@@ -18,7 +18,8 @@ namespace PlayerStates
         {
             ctx.InputRotation(1);
             ctx.GroundedColliderRotation();
-            ctx.visuals.forward = ctx.VisualsDirection;
+
+            ctx.visuals.SetForward(ctx.VisualsDirection);
 
             Vector3 velocity = ctx.Velocity;
 

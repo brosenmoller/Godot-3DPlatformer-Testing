@@ -1,5 +1,6 @@
 using System.Collections;
-using UnityEngine;
+using Godot;
+using MEC;
 
 namespace PlayerStates
 {
@@ -16,7 +17,7 @@ namespace PlayerStates
             ctx.InvokeOnSlide();
 
             ctx.slideDivePressCanTrigger = false;
-            ctx.visuals.forward = ctx.Transform.Forward();
+            ctx.visuals.SetForward(ctx.Transform.Forward());
             ctx.VisualsDirection = ctx.Transform.Forward();
             ctx.slideTimer.Restart();
 
@@ -32,13 +33,14 @@ namespace PlayerStates
             }
 
             slideVisualsCoroutine = ctx.StartCoroutine(SlideRotation());
-            ctx.playerCollider.height = 1;
-            ctx.playerCollider.center = Vector3.Zero;
+            //ctx.PlayerCollider.height = 1;
+            //ctx.PlayerCollider.center = Vector3.Zero;
         }
 
         public override void OnPhysicsUpdate()
         {
-            bool downSlope = Vector3.Dot(ctx.ProjectOnSlope(Vector3.Down), ctx.Velocity) > 0.5f;
+            bool downSlope = ctx.Velocity.Dot(ctx.ProjectOnSlope(Vector3.Down)) > 0.5f;
+
             //Keep Sliding if it's down slope
             if (ctx.slideDivePressed && ctx.SlopeAngle > 15 && downSlope)
             {
@@ -46,12 +48,14 @@ namespace PlayerStates
             }
 
 
-            ctx.velocityLibrary[PlayerVelocitySource.slide] += (downSlope ? 1 : -1) * ctx.SlopeAngle * 0.2f * Time.fixedDeltaTime;
+            ctx.velocityLibrary[PlayerVelocitySource.slide] += (downSlope ? 1 : -1) * ctx.SlopeAngle * 0.2f * (float)ctx.GetPhysicsProcessDeltaTime();
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] < 0) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 0; }
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] > 14) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 14; }
 
             ctx.AddForceImmediate(ctx.Transform.Forward(), slideForce);
-            ctx.bottomVisualsPivot.localRotation = Quaternion.Euler(-90, 0, 0);
+            
+            ctx.bottomVisualsPivot.Basis = new Basis(Quaternion.FromEuler(new Vector3(-90, 0, 0)));
+
             ctx.VisualsDirection = ctx.Transform.Forward();
             ctx.InputRotation(slidingRotationSpeed);
             ctx.GroundedColliderRotation();
@@ -61,9 +65,9 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.playerCollider.height = 2;
-            ctx.playerCollider.center = new Vector3(0, 0.5f, 0);
-            ctx.bottomVisualsPivot.localRotation = Quaternion.Euler(0, 0, 0);
+            //ctx.PlayerCollider.height = 2;
+            //ctx.PlayerCollider.center = new Vector3(0, 0.5f, 0);
+            ctx.bottomVisualsPivot.Basis = new Basis(Quaternion.FromEuler(Vector3.Zero));
 
             ctx.maintainVelocityLibrary[PlayerVelocitySource.slide] = false;
             ctx.ZeroVerticalVelocity();
@@ -77,33 +81,38 @@ namespace PlayerStates
         }
 
         //prototype Visuals
-        private IEnumerator SlideRotation()
+        private IEnumerator<double> SlideRotation()
         {
             float t = 0;
-            Quaternion startRotation = Quaternion.Euler(0, 0, 0);
-            Quaternion endRotation = Quaternion.Euler(-90, 0, 0);
+
+            Quaternion startRotation = Quaternion.Identity;
+            Quaternion endRotation = Quaternion.FromEuler(new Vector3(-90, 0, 0));
+
             float duration = ctx.slideTimer.EndTime / 4;
             while (t < duration)
             {
-                t += Time.deltaTime;
-                Quaternion currentRotation = Quaternion.Lerp(startRotation, endRotation, t / duration);
-                ctx.bottomVisualsPivot.localRotation = currentRotation;
+                t += (float)ctx.GetProcessDeltaTime();
+                Quaternion currentRotation = startRotation.Slerp(endRotation, t / duration);
+
+                ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
+
                 yield return null;
             }
-            yield return new WaitForSeconds(duration * 2);
+            yield return Timing.WaitForSeconds(duration * 2);
         }
 
-        private IEnumerator SlideRotationBack()
+        private IEnumerator<double> SlideRotationBack()
         {
             float t = 0;
-            Quaternion startRotation = ctx.bottomVisualsPivot.localRotation;
-            Quaternion endRotation = Quaternion.Euler(0, 0, 0);
+            Quaternion startRotation = ctx.bottomVisualsPivot.Basis.GetRotationQuaternion();
+            Quaternion endRotation = Quaternion.Identity;
+
             float duration = ctx.slideTimer.EndTime / 3;
             while (t < duration)
             {
-                t += Time.deltaTime;
-                Quaternion currentRotation = Quaternion.Lerp(startRotation, endRotation, t / duration);
-                ctx.bottomVisualsPivot.localRotation = currentRotation;
+                t += (float)ctx.GetProcessDeltaTime();
+                Quaternion currentRotation = startRotation.Slerp(endRotation, t / duration);
+                ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
                 yield return null;
             }
         }

@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Godot;
+using MEC;
 
 namespace PlayerStates
 {
@@ -7,36 +8,37 @@ namespace PlayerStates
     {
         public override void OnEnter()
         {
-            ctx.jumpCoroutine = ctx.StartCoroutine(PoleJumpRoutine());
+            ctx.jumpCoroutine = Timing.RunCoroutine(PoleJumpRoutine(), Segment.PhysicsProcess);
             ctx.jumpPressCanTrigger = false;
         }
 
-
-        private IEnumerator PoleJumpRoutine()
+        private IEnumerator<double> PoleJumpRoutine()
         {
             float maxTime = ctx.maxJumpTime;
-            float Internal.Timer = 0;
+            float timer = 0;
             Vector3 direction = Vector3.Up + -ctx.Transform.Forward();
             ctx.ZeroVerticalVelocity();
-            ctx.Transform.Forward() = -ctx.Transform.Forward();
+
+            ctx.SetForward(-ctx.Transform.Forward());
+            
             ctx.AddForceImmediate(direction, ctx.jumpForce);
             float minimumJump = 0.2f;
-            while ((ctx.jumpPressed || Internal.Timer < minimumJump) && Internal.Timer < maxTime)
+            while ((ctx.jumpPressed || timer < minimumJump) && timer < maxTime)
             {
-                Internal.Timer += Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
+                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                yield return Timing.WaitForOneFrame;
             }
-            Internal.Timer = 0;
+            timer = 0;
             //keep the player in the air for a few frames after ending the up velocity of a jump
             float hangingTime = 0.1f;
             while (timer < hangingTime)
             {
-                Internal.Timer += Time.fixedDeltaTime;
+                timer += (float)ctx.GetPhysicsProcessDeltaTime();
                 if (ctx.Velocity.Y != 0)
                 {
                     ctx.ZeroVerticalVelocity();
                 }
-                yield return new WaitForFixedUpdate();
+                yield return Timing.WaitForOneFrame;
             }
             //make sure there isn't any upwards velocity
             if (ctx.Velocity.Y > 0)

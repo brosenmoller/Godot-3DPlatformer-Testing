@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates 
 {
@@ -9,7 +9,7 @@ namespace PlayerStates
             ctx.InvokeOnGroundPoundLand();
 
             ctx.groundPoundLandTimer.Restart();
-            ctx.slopeJumpHeight = Mathf.Infinity;
+            ctx.slopeJumpHeight = Mathf.Inf;
             ctx.ZeroVelocity();
         }
     }

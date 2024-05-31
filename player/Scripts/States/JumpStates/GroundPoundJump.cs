@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using MEC;
+using Godot;
 
 namespace PlayerStates
 {
@@ -12,16 +13,16 @@ namespace PlayerStates
         {
             ctx.InvokeOnGroundPoundJump();
 
-            ctx.jumpCoroutine = ctx.StartCoroutine(GroundPoundJumpRoutine());
+            ctx.jumpCoroutine = Timing.RunCoroutine(GroundPoundJumpRoutine(), Segment.PhysicsProcess);
             ctx.jumpPressCanTrigger = false;
         }
 
-        private IEnumerator GroundPoundJumpRoutine()
+        private IEnumerator<double> GroundPoundJumpRoutine()
         {
             float maxTime = ctx.maxJumpTime + maxJumpTimeIncrease;
             Vector3 direction = Vector3.Up;
 
-            float Internal.Timer = 0;
+            float timer = 0;
 
             ctx.ZeroVerticalVelocity();
 
@@ -30,20 +31,20 @@ namespace PlayerStates
 
             while (timer < maxTime)
             {
-                Internal.Timer += Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
+                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                yield return Timing.WaitForOneFrame;
             }
-            Internal.Timer = 0;
+            timer = 0;
 
             //keep the player in the air for a few frames after ending the up velocity of a jump
             while (timer < hangingTime)
             {
-                Internal.Timer += Time.fixedDeltaTime;
+                timer += (float)ctx.GetPhysicsProcessDeltaTime();
                 if (ctx.Velocity.Y != 0)
                 {
                     ctx.ZeroVerticalVelocity();
                 }
-                yield return new WaitForFixedUpdate();
+                yield return Timing.WaitForOneFrame;
             }
 
             //make sure there isn't any upwards velocity

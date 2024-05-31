@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Godot;
 
 namespace PlayerStates
 {
@@ -28,8 +28,8 @@ namespace PlayerStates
 
         public override void OnPhysicsUpdate()
         {
-            ctx.Velocity += Physics.gravity.Y * (grappleGravityAdjustment - 1) * Time.fixedDeltaTime * Vector3.Up;
-            ctx.Velocity += ctx.swingSpeed * Time.fixedDeltaTime * ctx.InputDirection;
+            ctx.Velocity += PlayerController.GRAVITY * (grappleGravityAdjustment - 1) * (float)ctx.GetPhysicsProcessDeltaTime(); * Vector3.Up;
+            ctx.Velocity += ctx.swingSpeed * (float)ctx.GetPhysicsProcessDeltaTime(); * ctx.InputDirection;
             Vector3 v = ctx.Velocity;
             v.Y = Mathf.Clamp(v.Y, -12, 39);
             ctx.Velocity = v;

@@ -3,7 +3,7 @@ using Godot;
 
 public static class GodotPhysicsExtensions
 {
-    public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, out RayCastHitInfo2D hitInfo, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, out RaycastHit2D hitInfo, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         PhysicsRayQueryParameters2D query = new()
         {
@@ -18,7 +18,7 @@ public static class GodotPhysicsExtensions
         return RayCast2D(node, query, out hitInfo);
     }
 
-    public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 endPosition, out RayCastHitInfo2D hitInfo, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 endPosition, out RaycastHit2D hitInfo, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         PhysicsRayQueryParameters2D query = new()
         {
@@ -33,7 +33,7 @@ public static class GodotPhysicsExtensions
         return RayCast2D(node, query, out hitInfo);
     }
 
-    public static bool RayCast2D(this CanvasItem node, PhysicsRayQueryParameters2D query, out RayCastHitInfo2D hitInfo)
+    public static bool RayCast2D(this CanvasItem node, PhysicsRayQueryParameters2D query, out RaycastHit2D hitInfo)
     {
         PhysicsDirectSpaceState2D spaceState = node.GetWorld2D().DirectSpaceState;
         Dictionary result = spaceState.IntersectRay(query);
@@ -82,7 +82,7 @@ public static class GodotPhysicsExtensions
         return RayCast3D(node, query, out _);
     }
 
-    public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, out RayCastHitInfo3D hitInfo, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, out RaycastHit3D hitInfo, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         PhysicsRayQueryParameters3D query = new()
         {
@@ -97,7 +97,7 @@ public static class GodotPhysicsExtensions
         return RayCast3D(node, query, out hitInfo);
     }
 
-    public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 endPosition, out RayCastHitInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 endPosition, out RaycastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         PhysicsRayQueryParameters3D query = new()
         {
@@ -112,7 +112,7 @@ public static class GodotPhysicsExtensions
         return RayCast3D(node, query, out hitInfo);
     }
 
-    public static bool RayCast3D(this Node3D node, PhysicsRayQueryParameters3D query, out RayCastHitInfo3D hitInfo)
+    public static bool RayCast3D(this Node3D node, PhysicsRayQueryParameters3D query, out RaycastHit3D hitInfo)
     {
         PhysicsDirectSpaceState3D spaceState = node.GetWorld3D().DirectSpaceState;
         Dictionary result = spaceState.IntersectRay(query);
@@ -149,7 +149,7 @@ public static class GodotPhysicsExtensions
         return true;
     }
 
-    public static bool SphereCast3D(this Node3D node, Vector3 startPosition, float radius, Vector3 endPosition, out ShapeCastHitInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool SphereCast3D(this Node3D node, Vector3 startPosition, float radius, Vector3 endPosition, out ShapecastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
         PhysicsServer3D.ShapeSetData(shapeRid, radius);
@@ -157,7 +157,7 @@ public static class GodotPhysicsExtensions
         return StartShapeCast3D(shapeRid, node, startPosition, endPosition, out hitInfo, collisionMask, collideWithAreas, collideWithBodies);
     }
 
-    public static bool CapsuleCast3D(this Node3D node, Vector3 startPosition, float radius, float height, Vector3 endPosition, out ShapeCastHitInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool CapsuleCast3D(this Node3D node, Vector3 startPosition, float radius, float height, Vector3 endPosition, out ShapecastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Rid shapeRid = PhysicsServer3D.CapsuleShapeCreate();
         Dictionary capsuleDict = new()
@@ -171,7 +171,7 @@ public static class GodotPhysicsExtensions
         return StartShapeCast3D(shapeRid, node, startPosition, endPosition, out hitInfo, collisionMask, collideWithAreas, collideWithBodies);
     }
 
-    private static bool StartShapeCast3D(Rid shapeRid, Node3D node, Vector3 startPosition, Vector3 endPosition, out ShapeCastHitInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    private static bool StartShapeCast3D(Rid shapeRid, Node3D node, Vector3 startPosition, Vector3 endPosition, out ShapecastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Vector3 motion = endPosition - startPosition;
         Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), startPosition);
@@ -193,7 +193,7 @@ public static class GodotPhysicsExtensions
         return result;
     }
 
-    public static bool ShapeCast3D(this Node3D node, PhysicsShapeQueryParameters3D query, out ShapeCastHitInfo3D hitInfo)
+    public static bool ShapeCast3D(this Node3D node, PhysicsShapeQueryParameters3D query, out ShapecastHit3D hitInfo)
     {
         PhysicsDirectSpaceState3D spaceState = node.GetWorld3D().DirectSpaceState;
         float[] motionResult = spaceState.CastMotion(query);
@@ -222,7 +222,7 @@ public static class GodotPhysicsExtensions
         PhysicsShapeQueryParameters3D restInfoQuery = query;
         restInfoQuery.Transform = new Transform3D(query.Transform.Basis, hitInfo.lastSafeLocation + direction * 0.01f);
 
-        if (OverlapShape3D(node, restInfoQuery, out OverlapShapeInfo3D info))
+        if (OverlapShape3D(node, restInfoQuery, out OverlapShape3D info))
         {
             hitInfo.overlapInfo = info;
         }
@@ -230,7 +230,7 @@ public static class GodotPhysicsExtensions
         return true;
     }
 
-    public static bool OverlapSphere3D(this Node3D node, Vector3 position, float radius, out OverlapShapeInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool OverlapSphere3D(this Node3D node, Vector3 position, float radius, out OverlapShape3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
         PhysicsServer3D.ShapeSetData(shapeRid, radius);
@@ -253,7 +253,7 @@ public static class GodotPhysicsExtensions
         return result;
     }
 
-    public static bool OverlapCapsule3D(this Node3D node, Vector3 position, float radius, float height, out OverlapShapeInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    public static bool OverlapCapsule3D(this Node3D node, Vector3 position, float radius, float height, out OverlapShape3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Rid shapeRid = PhysicsServer3D.CapsuleShapeCreate();
         Dictionary capsuleDict = new()
@@ -282,7 +282,7 @@ public static class GodotPhysicsExtensions
         return result;
     }
 
-    public static bool OverlapShape3D(this Node3D node, PhysicsShapeQueryParameters3D query, out OverlapShapeInfo3D info)
+    public static bool OverlapShape3D(this Node3D node, PhysicsShapeQueryParameters3D query, out OverlapShape3D info)
     {
         PhysicsDirectSpaceState3D spaceState = node.GetWorld3D().DirectSpaceState;
         Dictionary restInfoResult = spaceState.GetRestInfo(query);

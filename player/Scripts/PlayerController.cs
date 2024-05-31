@@ -5,6 +5,9 @@ using MEC;
 
 public partial class PlayerController : CharacterBody3D
 {
+    public const float GRAVITY = 9.81f;
+    public bool useGravity = true;
+
     public Vector3 InputDirection { get; private set; }
     public bool SlopeCheckHasHit { get; private set; }
     public Vector3 SlopeNormal { get; private set; }
@@ -12,14 +15,14 @@ public partial class PlayerController : CharacterBody3D
     public Vector2 MovementInput { get; private set; }
     public Vector3 VisualsDirection { get; set; }
     public CollisionObject3D PoleTopCollider { get; private set; }
-    public RayCastHitInfo3D ledgeDownHit { get; private set; }
-    public RayCastHitInfo3D ledgeForwardHit { get; private set; }
+    public RaycastHit3D ledgeDownHit { get; private set; }
+    public RaycastHit3D ledgeForwardHit { get; private set; }
     public Vector3 ledgeDirection { get; private set; }
     public float PoleStartHeight { get; private set; }
     public Node3D Pole { get; private set; }
     public Vector3 WallNormal { get; private set; }
     public Vector3 ClimbDirection { get; private set; }
-    public CollisionShape3D playerCollider { get; private set; }
+    public CollisionShape3D PlayerCollider { get; private set; }
 
     public Vector3 SolarDiveDirection { get; set; }
 
@@ -139,7 +142,7 @@ public partial class PlayerController : CharacterBody3D
 
     [ExportCategory("Poles")]
     [Export(PropertyHint.Layers3DPhysics)]
-    private uint PoleLayer;
+    public uint PoleLayer;
 
     [Export]
     private string poleTopTag;
@@ -245,7 +248,7 @@ public partial class PlayerController : CharacterBody3D
 
     private void GetReferences()
     {
-        playerCollider = this.GetChildByType<CollisionShape3D>();
+        PlayerCollider = this.GetChildByType<CollisionShape3D>();
     }
 
     private void StateMachineSetup()
@@ -342,7 +345,7 @@ public partial class PlayerController : CharacterBody3D
     private void SlopeChecker()
     {
         Vector3 startPosition = GlobalPosition + new Vector3(0f, playerHeight, 0f);
-        if (this.SphereCast3D(startPosition, 0.5f, startPosition + Vector3.Down * 3f, out ShapeCastHitInfo3D hit, GroundLayer, false))
+        if (this.SphereCast3D(startPosition, 0.5f, startPosition + Vector3.Down * 3f, out ShapecastHit3D hit, GroundLayer, false))
         {
             SlopeNormal = hit.overlapInfo.normal;
             if (SlopeNormal != Vector3.Up)

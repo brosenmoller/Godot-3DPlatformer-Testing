@@ -1,25 +1,25 @@
 ﻿using Godot;
 
-public struct RayCastHitInfo2D
+public struct RaycastHit2D
 {
     public Vector2 point;
     public Vector2 normal;
     public ColliderInfo2D colliderInfo;
 }
 
-public struct RayCastHitInfo3D
+public struct RaycastHit3D
 {
     public Vector3 point;
     public Vector3 normal;
     public ColliderInfo3D colliderInfo;
 }
 
-public struct ShapeCastHitInfo3D
+public struct ShapecastHit3D
 {
     public Vector3 lastSafeLocation;
-    public OverlapShapeInfo3D overlapInfo;
+    public OverlapShape3D overlapInfo;
 }
-public struct OverlapShapeInfo3D
+public struct OverlapShape3D
 {
     public Vector3 point;
     public Vector3 normal;

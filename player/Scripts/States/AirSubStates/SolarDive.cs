@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using Godot;
 
 namespace PlayerStates
 {
@@ -16,10 +16,11 @@ namespace PlayerStates
             //make the sure the normal max isn't down
             ctx.velocityLibrary[PlayerVelocitySource.normal] = ctx.defaultMaxVelocity;
 
-            ctx.Transform.Forward() = ctx.SolarDiveDirection;
+            ctx.SetForward(ctx.SolarDiveDirection);
+
             ctx.ZeroVerticalVelocity();
             ctx.Velocity += ctx.Transform.Forward() * diveForce;
-            ctx.Rigidbody.useGravity = false;
+            ctx.useGravity = false;
         }
 
         public override void OnPhysicsUpdate()
@@ -33,7 +34,7 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.Rigidbody.useGravity = true;
+            ctx.useGravity = true;
             ctx.divesLeft = 1;
         }
         private float CalculateDesiredVelocityAdd(float desiredVelocity, float maxForceToAdd, PlayerVelocitySource source)

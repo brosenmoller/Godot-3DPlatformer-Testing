@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Godot;
+using MEC;
 
 namespace PlayerStates
 {
@@ -11,9 +12,9 @@ namespace PlayerStates
         {
             ctx.InvokeOnWallUpEnter();
 
-            ctx.Rigidbody.useGravity = false;
+            ctx.useGravity = false;
             ctx.Velocity = ctx.ClimbDirection * ctx.Velocity.Length() * 2;
-            ctx.climbRotateCoroutine = ctx.StartCoroutine(ctx.RotateTo(-ctx.WallNormal));
+            ctx.climbRotateCoroutine = Timing.RunCoroutine(ctx.RotateTo(-ctx.WallNormal), Segment.PhysicsProcess);
             ctx.climbingTimer.Restart();
         }
 
@@ -24,25 +25,25 @@ namespace PlayerStates
             ctx.Velocity = ctx.ClimbDirection * mag;
 
             //Is all of this needed? IDK it works though
-            Vector3 cross = Vector3.Cross(ctx.WallNormal, Vector3.Up);
+            Vector3 cross = ctx.WallNormal.Cross(Vector3.Up);
             //determine if the projected input is going in a left or right direction
-            float leftRightInput = Vector3.Dot(ctx.InputDirection, cross);
+            float leftRightInput = ctx.InputDirection.Dot(cross);
             //determine if the projected input is going in a forward or backwards direction
-            float forwardBackInput = Vector3.Dot(ctx.InputDirection, ctx.Transform.Forward());
+            float forwardBackInput = ctx.InputDirection.Dot(ctx.Transform.Forward());
 
             if (leftRightInput < -0.4f)
             {
-                ctx.GlobalPosition += 4 * Time.fixedDeltaTime * -cross / ctx.Rigidbody.mass;
+                ctx.GlobalPosition += 4 * (float)ctx.GetPhysicsProcessDeltaTime() * -cross;
                 return;
             }
             if (leftRightInput > 0.4f)
             {
-                ctx.GlobalPosition += 4 * Time.fixedDeltaTime * cross / ctx.Rigidbody.mass;
+                ctx.GlobalPosition += 4 * (float)ctx.GetPhysicsProcessDeltaTime() * cross;
                 return;
             }
             if (forwardBackInput < -0.4f)
             {
-                ctx.wallMoveBackTime += Time.fixedDeltaTime;
+                ctx.wallMoveBackTime += (float)ctx.GetPhysicsProcessDeltaTime();
             }
             else
             {
@@ -55,13 +56,12 @@ namespace PlayerStates
             ctx.InvokeOnWallUpExit();
 
             ctx.canClimb = false;
-            ctx.Rigidbody.useGravity = true;
+            ctx.useGravity = true;
             if (ctx.climbRotateCoroutine != null)
             {
                 ctx.StopCoroutine(ctx.climbRotateCoroutine);
                 ctx.climbRotateCoroutine = null;
             }
         }
-
     }
 }
