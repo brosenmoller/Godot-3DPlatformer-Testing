@@ -160,8 +160,13 @@ public static class GodotPhysicsExtensions
     public static bool CapsuleCast3D(this Node3D node, Vector3 startPosition, float radius, float height, Vector3 endPosition, out ShapeCastHitInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Rid shapeRid = PhysicsServer3D.CapsuleShapeCreate();
-        CapsuleShape3D capsuleShape3D = new() { Radius = radius, Height = height };
-        PhysicsServer3D.ShapeSetData(shapeRid, capsuleShape3D);
+        Dictionary capsuleDict = new()
+        {
+            { "radius", radius },
+            { "height", height }
+        };
+
+        PhysicsServer3D.ShapeSetData(shapeRid, capsuleDict);
 
         return StartShapeCast3D(shapeRid, node, startPosition, endPosition, out hitInfo, collisionMask, collideWithAreas, collideWithBodies);
     }
@@ -229,6 +234,35 @@ public static class GodotPhysicsExtensions
     {
         Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
         PhysicsServer3D.ShapeSetData(shapeRid, radius);
+
+        Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), position);
+
+        PhysicsShapeQueryParameters3D query = new()
+        {
+            CollideWithAreas = collideWithAreas,
+            CollideWithBodies = collideWithBodies,
+            Transform = transform,
+            CollisionMask = collisionMask,
+            ShapeRid = shapeRid,
+        };
+
+        bool result = OverlapShape3D(node, query, out hitInfo);
+
+        PhysicsServer3D.FreeRid(shapeRid);
+
+        return result;
+    }
+
+    public static bool OverlapCapsule3D(this Node3D node, Vector3 position, float radius, float height, out OverlapShapeInfo3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    {
+        Rid shapeRid = PhysicsServer3D.CapsuleShapeCreate();
+        Dictionary capsuleDict = new()
+        {
+            { "radius", radius },
+            { "height", height }
+        };
+
+        PhysicsServer3D.ShapeSetData(shapeRid, capsuleDict);
 
         Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), position);
 

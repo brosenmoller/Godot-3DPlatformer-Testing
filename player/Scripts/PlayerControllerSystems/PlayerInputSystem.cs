@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Godot;
+using Godot.Collections;
 
 [System.Serializable]
 public enum PlayerAction
@@ -18,15 +19,15 @@ public enum PlayerAction
 public partial class PlayerController
 {
     [ExportCategory("Input")]
-    [Export] 
-    private List<PlayerAction> startingPlayerActions;
+    [Export]
+    private Array<PlayerAction> startingPlayerActions;
 
     public HashSet<PlayerAction> activePlayerActions;
 
-    private PlayerInput gameActions;
+    private InputService input;
 
     /// <summary>
-    /// Add actions the player can perform in-game.
+    /// Add Bindings the player can perform in-game.
     /// </summary>
     /// <param name="playerActions"></param>
     public void AddPlayerAction(params PlayerAction[] playerActions)
@@ -38,7 +39,7 @@ public partial class PlayerController
     }
 
     /// <summary>
-    /// Removes actions the player can perform in-game.
+    /// Removes Bindings the player can perform in-game.
     /// </summary>
     /// <param name="playerActions"></param>
     public void RemovePlayerAction(params PlayerAction[] playerActions)
@@ -52,41 +53,41 @@ public partial class PlayerController
     
     private void SetupCharacterInput()
     {
-        gameActions = ServiceLocator.Instance.Get<InputService>().inputActions;
+        input = ServiceLocator.Instance.Get<InputService>();
         activePlayerActions = new HashSet<PlayerAction>(startingPlayerActions);
      
-        gameActions.actions["Movement"].performed += OnMovementPerformed;
-        gameActions.actions["Movement"].canceled += OnMovementCancelled;
-        gameActions.actions["Jump"].performed += OnJumpPerformed;
-        gameActions.actions["Jump"].canceled += OnJumpCancelled;
-        gameActions.actions["GroundPound"].performed += OnGroundPoundPerformed;
-        gameActions.actions["GroundPound"].canceled += OnGroundPoundCancelled;
-        gameActions.actions["Slide"].performed += OnSlidePerformed;
-        gameActions.actions["Slide"].canceled += OnSlideCancelled;
-        gameActions.actions["GrappleHook"].performed += OnGrappleHookPerformed;
-        gameActions.actions["GrappleHook"].canceled += OnGrappleHookCancelled;
+        input.Bindings["movement"].Performed += OnMovementPerformed;
+        input.Bindings["movement"].Canceled += OnMovementCancelled;
+        input.Bindings["jump"].Performed += OnJumpPerformed;
+        input.Bindings["jump"].Canceled += OnJumpCancelled;
+        input.Bindings["ground_pound"].Performed += OnGroundPoundPerformed;
+        input.Bindings["ground_pound"].Canceled += OnGroundPoundCancelled;
+        input.Bindings["slide"].Performed += OnSlidePerformed;
+        input.Bindings["slide"].Canceled += OnSlideCancelled;
+        input.Bindings["grapple"].Performed += OnGrappleHookPerformed;
+        input.Bindings["grapple"].Canceled += OnGrappleHookCancelled;
     }
 
     private void DesubscribeCharacterInput()
     {
-        gameActions.actions["Movement"].performed -= OnMovementPerformed;
-        gameActions.actions["Movement"].canceled -= OnMovementCancelled;
-        gameActions.actions["Jump"].performed -= OnJumpPerformed;
-        gameActions.actions["Jump"].canceled -= OnJumpCancelled;
-        gameActions.actions["GroundPound"].performed -= OnGroundPoundPerformed;
-        gameActions.actions["GroundPound"].canceled -= OnGroundPoundCancelled;
-        gameActions.actions["Slide"].performed -= OnSlidePerformed;
-        gameActions.actions["Slide"].canceled -= OnSlideCancelled;
-        gameActions.actions["GrappleHook"].performed -= OnGrappleHookPerformed;
-        gameActions.actions["GrappleHook"].canceled -= OnGrappleHookCancelled;
+        input.Bindings["movement"].Performed -= OnMovementPerformed;
+        input.Bindings["movement"].Canceled -= OnMovementCancelled;
+        input.Bindings["jump"].Performed -= OnJumpPerformed;
+        input.Bindings["jump"].Canceled -= OnJumpCancelled;
+        input.Bindings["ground_pound"].Performed -= OnGroundPoundPerformed;
+        input.Bindings["ground_pound"].Canceled -= OnGroundPoundCancelled;
+        input.Bindings["slide"].Performed -= OnSlidePerformed;
+        input.Bindings["slide"].Canceled -= OnSlideCancelled;
+        input.Bindings["grapple"].Performed -= OnGrappleHookPerformed;
+        input.Bindings["grapple"].Canceled -= OnGrappleHookCancelled;
     }
 
 
-    private void OnMovementPerformed(InputAction.CallbackContext ctx)
+    private void OnMovementPerformed()
     {
         if (activePlayerActions.Contains(PlayerAction.Move))
         {
-            MovementInput = ctx.ReadValue<Vector2>();
+            MovementInput = input.Bindings["movement"].ReadValue<Vector2>();
         }
         else
         {
@@ -94,56 +95,56 @@ public partial class PlayerController
         }
     }
 
-    private void OnMovementCancelled(InputAction.CallbackContext ctx)
+    private void OnMovementCancelled()
     {
         MovementInput = Vector2.Zero;
     }
 
-    private void OnJumpPerformed(InputAction.CallbackContext ctx)
+    private void OnJumpPerformed()
     {
         jumpPressed = true;
         jumpPressCanTrigger = true;
         jumpInputTimer.Restart();
     }
 
-    private void OnJumpCancelled(InputAction.CallbackContext ctx)
+    private void OnJumpCancelled()
     {
         jumpPressed = false;
         jumpPressCanTrigger = false;
     }
 
-    private void OnGroundPoundPerformed(InputAction.CallbackContext ctx)
+    private void OnGroundPoundPerformed()
     {
         groundPoundPressCanTrigger = true;
         groundPoundPressed = true;
     }
 
-    private void OnGroundPoundCancelled(InputAction.CallbackContext ctx)
+    private void OnGroundPoundCancelled()
     {
         groundPoundPressed = false;
         groundPoundPressCanTrigger = false;
     }
 
-    private void OnSlidePerformed(InputAction.CallbackContext ctx)
+    private void OnSlidePerformed()
     {
         slideDivePressed = true;
         slideDivePressCanTrigger = true;
         slideInputTimer.Restart();
     }
 
-    private void OnSlideCancelled(InputAction.CallbackContext ctx)
+    private void OnSlideCancelled()
     {
         slideDivePressed = false;
         slideDivePressCanTrigger = false;
     }
 
-    private void OnGrappleHookPerformed(InputAction.CallbackContext ctx)
+    private void OnGrappleHookPerformed()
     {
         grapplePressed = true;
         grapplePressCanTrigger = true;
     }
 
-    private void OnGrappleHookCancelled(InputAction.CallbackContext ctx)
+    private void OnGrappleHookCancelled()
     {
         grapplePressed = false;
         grapplePressCanTrigger = false;

@@ -1,93 +1,94 @@
 ﻿using System.Collections.Generic;
-using PlayerStates;
 using System.Linq;
 using Godot;
 
 public partial class PlayerController
 {
-    //public void FindGrapplePoint()
-    //{
-    //    if (!activePlayerActions.Contains(PlayerAction.GrappleHook))
-    //    {
-    //        return;
-    //    }
+    public void FindGrapplePoint()
+    {
+        if (!activePlayerActions.Contains(PlayerAction.GrappleHook))
+        {
+            return;
+        }
 
-    //    int numHitColliders = Physics.OverlapSphereNonAlloc(topPivot.position, grappleMaxDistance, grapplePointColliders, grappleable, QueryTriggerInteraction.Collide);
+        this.OverlapSphere3D(topPivot.GlobalPosition, grappleMaxDistance, out OverlapShapeInfo3D info, grappleable, true);
 
-    //    List<RaycastHit> hits = new();
-    //    for (int i = 0; i < numHitColliders; i++)
-    //    {
-    //        Collider collider = grapplePointColliders[i];
+        List<RayCastHitInfo3D> hits = new();
 
-    //        if (collider.transform == lastGrappleObject) { continue; }
+        for (int i = 0; i < info.allColliders.Length; i++)
+        {
+            CollisionObject3D collider = grapplePointColliders[i];
 
-    //        Vector3 direciton = (collider.GlobalPosition - topPivot.position).Normalized();
+            if (collider == lastGrappleObject) { continue; }
 
-    //        Debug.DrawLine(topPivot.GlobalPosition, topPivot.GlobalPosition + direciton * grappleMaxDistance, Color.green);
+            Vector3 direciton = (collider.GlobalPosition - topPivot.GlobalPosition).Normalized();
 
-    //        if (this.RayCast3D(topPivot.position, direciton, out RaycastHit hit, grappleMaxDistance, grappleable, QueryTriggerInteraction.Collide))
-    //        {
-    //            if (hit.collider != collider) { continue; }
-    //            if (!Camera.main.PointIsInFrustum(hit.GlobalPosition, new Vector3(0.5f, 0.5f, 0.5f))) { continue; }
+            if (this.RayCast3D(topPivot.GlobalPosition, direciton, out RayCastHitInfo3D hit, grappleMaxDistance, grappleable, true))
+            {
+                if (hit.colliderInfo.collider != collider) { continue; }
 
-    //            Vector2 hitPosXZ = new(hit.GlobalPosition.X, hit.GlobalPosition.Z);
-    //            Vector2 cameraPosXZ = new(Camera.main.GlobalPosition.X, Camera.main.GlobalPosition.Z);
-    //            float sqrDistanceXZCamera = Vector2.SqrMagnitude(cameraPosXZ - hitPosXZ);
+                if (!mainCamera.PointIsInFrustum(hit.colliderInfo.collider.GlobalPosition, new Vector3(0.5f, 0.5f, 0.5f))) { continue; }
 
-    //            if (sqrDistanceXZCamera < Mathf.Pow(minDistanceCamera, 2)) { continue; }
+                Vector2 hitPosXZ = new(hit.colliderInfo.collider.GlobalPosition.X, hit.colliderInfo.collider.GlobalPosition.Z);
+                Vector2 cameraPosXZ = new(mainCamera.GlobalPosition.X, mainCamera.GlobalPosition.Z);
+                float sqrDistanceXZCamera = (cameraPosXZ - hitPosXZ).LengthSquared();
 
-    //            Debug.DrawLine(topPivot.position, collider.GlobalPosition, Color.magenta);
+                if (sqrDistanceXZCamera < Mathf.Pow(minDistanceCamera, 2)) { continue; }
 
-    //            hits.Add(hit);
-    //        }
-    //    }
+                hits.Add(hit);
+            }
+        }
 
-    //    hits = hits.OrderBy(hit => {
-    //        Vector3 viewPortPoint = Camera.main.WorldToViewportPoint(hit.GlobalPosition);
-    //        viewPortPoint -= new Vector3(0.5f, 0.5f, 0);
-    //        viewPortPoint.Z = 0;
+        hits = hits.OrderBy(hit =>
+        {
+            Vector2 viewPortPoint = mainCamera.UnprojectPosition(hit.colliderInfo.collider.GlobalPosition);
+            viewPortPoint -= new Vector2(0.5f, 0.5f);
 
-    //        return viewPortPoint.LengthSquared();
-    //    }).ThenBy(hit =>
-    //    {
-    //        return (hit.GlobalPosition - GlobalPosition).LengthSquared();
-    //    }).ToList();
+            return viewPortPoint.LengthSquared();
+        }).ThenBy(hit =>
+        {
+            return (hit.colliderInfo.collider.GlobalPosition - GlobalPosition).LengthSquared();
+        }).ToList();
 
-    //    if (hits.Count == 0)
-    //    {
-    //        DisableGrapplePoint();
-    //        return;
-    //    }
+        if (hits.Count == 0)
+        {
+            DisableGrapplePoint();
+            return;
+        }
 
-    //    SetGrapplePoint(hits[0].transform);
-    //}
+        SetGrapplePoint(hits[0].colliderInfo.collider);
+    }
 
-    //public void DisableGrapplePoint()
-    //{
-    //    if (selectionGrapplePoint != null) { selectionGrapplePoint = null; }
-    //    if (selectedPointVisulizer.gameObject.activeInHierarchy) { selectedPointVisulizer.gameObject.SetActive(false); }
-    //}
+    public void DisableGrapplePoint()
+    {
+        if (selectionGrapplePoint != null) { selectionGrapplePoint = null; }
 
-    //private void SetGrapplePoint(Transform grapplePoint)
-    //{
-    //    selectionGrapplePoint = grapplePoint;
-    //    if (!selectedPointVisulizer.gameObject.activeInHierarchy) { selectedPointVisulizer.gameObject.SetActive(true); }
-    //    selectedPointVisulizer.position = selectionGrapplePoint.position;
-    //}
+        if (selectedPointVisulizer.IsProcessing()) 
+        {
+            selectedPointVisulizer.Visible = false;
+            selectedPointVisulizer.ProcessMode = ProcessModeEnum.Disabled;
+        }
+    }
+
+    private void SetGrapplePoint(Node3D grapplePoint)
+    {
+        selectionGrapplePoint = grapplePoint;
+        if (!selectedPointVisulizer.IsProcessing()) 
+        {
+            selectedPointVisulizer.Visible = true;
+            selectedPointVisulizer.ProcessMode = ProcessModeEnum.Inherit;
+        }
+
+        selectedPointVisulizer.GlobalPosition = selectionGrapplePoint.GlobalPosition;
+    }
 
     //private void OnCollisionEnter(Collision collision)
     //{
     //    //Replace me
-    //    if (stateMachine.currentState.GetType() == typeof(GrapplePull) || stateMachine.currentState.GetType() == typeof(GrappleSwing)) 
+    //    if (stateMachine.currentState.GetType() == typeof(GrapplePull) || stateMachine.currentState.GetType() == typeof(GrappleSwing))
     //    {
     //        stateMachine.ChangeState(typeof(AirMovement));
     //    }
-    //}
-
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.Yellow;
-    //    Gizmos.DrawWireSphere(topPivot.GlobalPosition, grappleMaxDistance);
     //}
 }
 

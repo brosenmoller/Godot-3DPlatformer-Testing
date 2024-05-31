@@ -1,7 +1,8 @@
 ﻿using PlayerStates;
 using Godot;
-using System.Collections;
 using System;
+using System.Collections.Generic;
+using MEC;
 
 public partial class PlayerController
 {
@@ -249,8 +250,10 @@ public partial class PlayerController
     {
         if (SlopeNormal == Vector3.Zero)
         {
-            GD.PrintErr("No slope while on Slope"); return false;
+            GD.PrintErr("No slope while on Slope"); 
+            return false;
         }
+
         return SlopeAngle > maxSlopeAngle && SlopeAngle != 180;
     }
 
@@ -317,16 +320,16 @@ public partial class PlayerController
                 Vector3 offset = forwardHit.normal * 0.64f + Vector3.Down;
                 Vector3 pos = new Vector3(forwardHit.point.X, downHit.point.Y, forwardHit.point.Z) + offset;
 
-                Collider[] colliders = Physics.OverlapCapsule(pos, pos + Vector3.Up, 0.5f, GroundLayer);
-                
-                if (colliders.Length != 0)
+                if (!this.OverlapCapsule3D(pos, 0.5f, 1.0f, out OverlapShapeInfo3D info, GroundLayer))
                 {
                     return false;
                 }
-                if (forwardHit.colliderObject.tag == "hangingPoint")
+
+                if (forwardHit.colliderInfo.collider.IsInGroup("hangingPoint"))
                 {
                     ledgeIsHangingPoint = true;
                 }
+
                 ledgeForwardHit = forwardHit;
                 ledgeDownHit = downHit;
                 ledgeDirection = forwardHit.normal.Cross(downHit.normal);
@@ -382,9 +385,7 @@ public partial class PlayerController
         Vector3 newPosition = collider.GlobalPosition;
         newPosition.Y += 0.5f;
 
-        Collider[] colliders = Physics.OverlapCapsule(newPosition, newPosition + Vector3.Up, 0.5f, GroundLayer, true);
-        
-        if (colliders.Length > 0)
+        if (this.OverlapCapsule3D(newPosition, 0.5f, 1.0f, out _, PoleLayer, true))
         {
             return false;
         }
@@ -397,41 +398,46 @@ public partial class PlayerController
     {
         if (poleLockTimer.IsRunning) { return false; }
 
-        Collider[] colliders = Physics.OverlapCapsule(GlobalPosition, GlobalPosition + Vector3.Up, 0.5f, PoleLayer, true);
-
-        if (colliders.Length != 0)
+        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShapeInfo3D overlapInfo, PoleLayer, true))
         {
-            foreach (Collider col in colliders)
+            return false;
+        }
+
+        
+        foreach (ColliderInfo3D colliderInfo in overlapInfo.allColliders)
+        {
+            if (!colliderInfo.collider.IsInGroup(poleTag)) { continue; }
+
+            float yPos = GlobalPosition.Y + POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
+            
+            Vector3 polePos = colliderInfo.collider.GlobalPosition;
+            polePos.Y = 0;
+            Vector3 player = GlobalPosition;
+            player.Y = 0;
+            Vector3 direction = (polePos - player).Normalized();
+            
+            if (MoveUpTillPoleFound(colliderInfo.collider, direction, polePos + (-direction * POLEDISTANCE), yPos))
             {
-                GD.Print(col.tag);
-                if (col.tag != poleTag) { continue; }
-                float yPos = GlobalPosition.Y + POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
-                Vector3 polePos = col.GlobalPosition;
-                polePos.Y = 0;
-                Vector3 player = GlobalPosition;
-                player.Y = 0;
-                Vector3 direction = (polePos - player).Normalized();
-                if (MoveUpTillPoleFound(col, direction, polePos + (-direction * POLEDISTANCE), yPos))
-                {
-                    Pole = col.transform;
-                    return true;
-                }
-                if (MoveDownTillPoleFound(col, direction, polePos, yPos))
-                {
-                    Pole = col.transform;
-                    return true;
-                }
+                Pole = colliderInfo.collider;
+                return true;
+            }
+            
+            if (MoveDownTillPoleFound(colliderInfo.collider, direction, polePos, yPos))
+            {
+                Pole = colliderInfo.collider;
+                return true;
             }
         }
+        
         return false;
     }
 
 
-    private bool MoveUpTillPoleFound(Collider col, Vector3 direction, Vector3 position, float yPos, int depth = 0)
+    private bool MoveUpTillPoleFound(CollisionObject3D collider, Vector3 direction, Vector3 position, float yPos, int depth = 0)
     {
         if (this.RayCast3D(new Vector3(position.X, yPos, position.Z), direction, out var hit, 0.7f, PoleLayer, true))
         {
-            if (hit.colliderObject != col) { return false; }
+            if (hit.colliderInfo.collider != collider) { return false; }
 
             if (hit.colliderInfo.collider.IsInGroup(poleTag))
             {
@@ -445,24 +451,28 @@ public partial class PlayerController
         
         yPos += POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
         
-        return MoveUpTillPoleFound(col, direction, position, yPos, ++depth);
+        return MoveUpTillPoleFound(collider, direction, position, yPos, ++depth);
     }
 
-    private bool MoveDownTillPoleFound(Collider col, Vector3 direction, Vector3 position, float yPos, int depth = 0)
+    private bool MoveDownTillPoleFound(CollisionObject3D collider, Vector3 direction, Vector3 position, float yPos, int depth = 0)
     {
-        if (this.RayCast3D(new Vector3(position.X, yPos, position.Z), direction, out var hit, 0.7f, PoleLayer, QueryTriggerInteraction.Collide))
+        if (this.RayCast3D(new Vector3(position.X, yPos, position.Z), direction, out var hit, 0.7f, PoleLayer, true))
         {
-            if (hit.colliderObject != col) { return false; }
-            if (hit.colliderObject.tag == poleTag)
+            if (hit.colliderInfo.collider != collider) { return false; }
+
+            if (hit.colliderInfo.collider.IsInGroup(poleTag))
             {
                 PoleStartHeight = yPos;
 
                 return true;
             }
         }
+
         if (depth > 50) { return false; }
+        
         yPos -= POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
-        return MoveDownTillPoleFound(col, direction, position, yPos, ++depth);
+        
+        return MoveDownTillPoleFound(collider, direction, position, yPos, ++depth);
     }
 
     private bool WallClimbChecker()
@@ -478,7 +488,6 @@ public partial class PlayerController
         if (WallClimbStartCheckerRaycast(true, -visuals.Transform.Right() * 0.3f)) { return true; }
         //Check right
         if (WallClimbStartCheckerRaycast(true, visuals.Transform.Right() * 0.3f)) { return true; }
-
 
         return false;
     }
@@ -588,7 +597,7 @@ public partial class PlayerController
         {
             grapplePressCanTrigger = false;
             grappleCooldownTimer.Restart();
-            StartCoroutine(StartGrappleWait(selectionGrapplePoint));
+            Timing.RunCoroutine(StartGrappleWait(selectionGrapplePoint));
         }
         return false;
     }
@@ -606,27 +615,28 @@ public partial class PlayerController
         return grapplePullHasReachedDestination;
     }
 
-    private IEnumerator StartGrappleWait(Transform point)
+    private IEnumerator<double> StartGrappleWait(Node3D point)
     {
         float currentTime = 0;
         bool pull = false;
 
         while (currentTime < grappleDelayTime)
         {
-            currentTime += Time.deltaTime;
+            currentTime += (float)GetProcessDeltaTime();
 
             if (!grapplePressed)
             {
                 pull = true;
             }
 
-            yield return null;
+            yield return Timing.WaitForOneFrame;
         }
         ExecuteGrapple(point, pull);
     }
-    private void ExecuteGrapple(Transform grapplePoint, bool pull)
+    private void ExecuteGrapple(Node3D grapplePoint, bool pull)
     {
         activeGrapplePoint = grapplePoint;
+
         if (pull)
         {
             stateMachine.ChangeState(typeof(GrapplePull));
@@ -641,17 +651,22 @@ public partial class PlayerController
     private bool SwingPointOverlap()
     {
         if (swingLockTimer.IsRunning) { return false; }
-        Collider[] colliders = Physics.OverlapCapsule(GlobalPosition, GlobalPosition + Vector3.Up, 0.5f, grappleable, QueryTriggerInteraction.Collide);
-        if (colliders.Length != 0)
+
+        if (!this.OverlapCapsule3D(GlobalPosition, 0.5f, 1.0f, out OverlapShapeInfo3D info, grappleable, true))
         {
-            foreach (Collider col in colliders)
-            {
-                GD.Print(col.tag);
-                if (col.tag != swingPointTag) { continue; }
-                currentGrapplePoint = col.transform;
-                return true;
-            }
+            return false;
         }
+
+        
+        foreach (ColliderInfo3D col in info.allColliders)
+        {
+            if (!col.collider.IsInGroup(swingPointTag)) { continue; }
+
+            currentGrapplePoint = col.collider;
+            return true;
+        }
+        
+        
         return false;
     }
 }
