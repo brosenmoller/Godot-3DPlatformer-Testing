@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://ywu7wqoy8s7d"]
+
+[ext_resource type="PackedScene" uid="uid://bewqhlgjihnfo" path="res://player/player.tscn" id="1_aua2g"]
+[ext_resource type="Material" uid="uid://d3en307fp3rus" path="res://Art/ground_mat.tres" id="1_x40ip"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_g0ul8"]
+size = Vector2(100, 100)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_340a2"]
+data = PackedVector3Array(50, 0, 50, -50, 0, 50, 50, 0, -50, -50, 0, 50, -50, 0, -50, 50, 0, -50)
+
+[node name="WorldRoot" type="Node3D"]
+
+[node name="Player" parent="." instance=ExtResource("1_aua2g")]
+script = null
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = ExtResource("1_x40ip")
+mesh = SubResource("PlaneMesh_g0ul8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_340a2")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.832583, 0.5539, 0, -0.5539, 0.832583, 0, 4.96747, 9.6748)
