@@ -5,7 +5,9 @@ public static class NodeExtensions
 {
     public static void SetForward(this Node3D node, Vector3 forward)
     {
-        node.GlobalBasis = node.GlobalBasis with { Z = forward };
+        //node.GlobalBasis = node.GlobalBasis with { Z = forward };
+
+        node.LookAt(forward + node.GlobalPosition);
     }
 
     public static float ProcessDelta(this Node node)

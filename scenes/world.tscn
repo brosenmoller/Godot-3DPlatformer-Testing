@@ -35,11 +35,10 @@ mesh = SubResource("PlaneMesh_g0ul8")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("ConcavePolygonShape3D_340a2")
 
+[node name="CameraSystem" parent="." instance=ExtResource("3_j81o2")]
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.444666, 0, 0.895696, 0, 1, 0, -0.895696, 0, 0.444666, 4.16956, 1.87496, 3.92503)
-
-[node name="CameraSystem" parent="." instance=ExtResource("3_j81o2")]
-process_mode = 4
 visible = false
 
 [node name="selectedPointVisualizer" type="Node3D" parent="."]

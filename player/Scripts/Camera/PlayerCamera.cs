@@ -96,7 +96,7 @@ public partial class PlayerCamera : Node3D
 
         player = this.GetNodeByType<PlayerController>();
 
-        //Input.MouseMode = Input.MouseModeEnum.Captured;
+        Input.MouseMode = Input.MouseModeEnum.Captured;
 
         input = ServiceLocator.Instance.Get<InputService>();
 
@@ -117,15 +117,11 @@ public partial class PlayerCamera : Node3D
         }
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    public override void _Input(InputEvent @event)
     {
         if (@event is InputEventMouseMotion mouseEvent)
         {
             cameraInput = mouseEvent.Relative;
-        }
-        else
-        {
-            cameraInput = Vector2.Zero;
         }
     }
 
@@ -138,11 +134,13 @@ public partial class PlayerCamera : Node3D
 
         MoveBase();
         RotateCameraLook();
+
+        CancelCamera();
     }
 
     private void CameraInput()
     {
-        cameraInput = input.Bindings["Camera"].ReadValue<Vector2>();
+        cameraInput = input.Bindings["camera"].ReadValue<Vector2>();
     }
 
     private void CancelCamera()
@@ -152,13 +150,16 @@ public partial class PlayerCamera : Node3D
 
     private void RotateCameraLook()
     {
-        Vector3 cameraDirection = (GlobalPosition - cameraLook.GlobalPosition).Normalized();
-
-        float step = cameraLookSpeed * this.PhysicsDelta();
-
-        this.SetForward(cameraLook.Transform.Forward().Lerp(cameraDirection, step));
+        //Vector3 cameraDirection = (GlobalPosition - cameraLook.GlobalPosition).Normalized();
+        //float step = cameraLookSpeed * this.PhysicsDelta();
+        //this.SetForward(cameraLook.Transform.Forward().Lerp(cameraDirection, step));
+        
+        cameraLook.LookAt(GlobalPosition);
     }
 
+    private float xRotation = 0.0f;
+    private float yRotation = 0.0f;
+    
     private void RotateBase()
     {
         if (cameraInput.LengthSquared() < 0.1f)
@@ -168,71 +169,83 @@ public partial class PlayerCamera : Node3D
 
         CancelRecenterCamera();
 
-        Vector2 rotation = GlobalTransform.Basis.GetEuler().XY();
-
-        if (rotation.X > 180)
-        {
-            rotation.X -= 360;
-        }
-
         float xMultiplier = invertX ? -1 : 1;
         float yMultiplier = invertY ? -1 : 1;
 
-        float inputDevice = 1;
-        if (inputDevice == 1)
-        {
-            rotation.Y += cameraInput.X * inputSensitivityMouse.X * this.PhysicsDelta() * xMultiplier;
-            rotation.X += cameraInput.Y * inputSensitivityMouse.Y * this.PhysicsDelta() * yMultiplier;
-        }
-        else
-        {
-            rotation.Y += cameraInput.X * inputSensitivityGamePad.X * this.PhysicsDelta() * xMultiplier;
-            rotation.X += cameraInput.Y * inputSensitivityGamePad.Y * this.PhysicsDelta() * yMultiplier;
-        }
+        Vector2 mouseDelta = cameraInput;
+        xRotation -= mouseDelta.X * inputSensitivityMouse.X * xMultiplier;
+        yRotation -= mouseDelta.Y * inputSensitivityMouse.Y * yMultiplier;
 
-        rotation.X = Mathf.Clamp(rotation.X, clampAngleMin, clampAngleMax);
+        yRotation = Mathf.Clamp(yRotation, -80.0f, 80.0f);
 
-        Quaternion orbitQuaternion = Quaternion.FromEuler(new Vector3(rotation.X, rotation.Y, 0.0f)).Normalized();
-        Quaternion currentQuaterion = GlobalTransform.Basis.GetRotationQuaternion().Normalized();
-        Basis = new Basis(currentQuaterion.Slerp(orbitQuaternion, this.PhysicsDelta() * 10));
+        RotationDegrees = new Vector3(yRotation, xRotation % 360, 0);
+
+        //Vector2 rotation = GlobalTransform.Basis.GetEuler().XY();
+
+        //if (rotation.X > 180)
+        //{
+        //    rotation.X -= 360;
+        //}
+
+        //float xMultiplier = invertX ? -1 : 1;
+        //float yMultiplier = invertY ? -1 : 1;
+
+        //float inputDevice = 1;
+        //if (inputDevice == 1)
+        //{
+        //    rotation.Y += cameraInput.X * inputSensitivityMouse.X * this.PhysicsDelta() * xMultiplier;
+        //    rotation.X += cameraInput.Y * inputSensitivityMouse.Y * this.PhysicsDelta() * yMultiplier;
+        //}
+        //else
+        //{
+        //    rotation.Y += cameraInput.X * inputSensitivityGamePad.X * this.PhysicsDelta() * xMultiplier;
+        //    rotation.X += cameraInput.Y * inputSensitivityGamePad.Y * this.PhysicsDelta() * yMultiplier;
+        //}
+
+        //rotation.X = Mathf.Clamp(rotation.X, clampAngleMin, clampAngleMax);
+
+        //Quaternion orbitQuaternion = Quaternion.FromEuler(new Vector3(rotation.X, rotation.Y, 0.0f)).Normalized();
+        //Quaternion currentQuaterion = GlobalTransform.Basis.GetRotationQuaternion().Normalized();
+
+        //Basis = new Basis(currentQuaterion.Slerp(orbitQuaternion, this.PhysicsDelta() * 10));
     }
 
     private Vector3 CalculateDesiredCameraLookPosition()
     {
-        return GlobalPosition + cameraLookOffset;
+        return GlobalPosition + Transform.Forward() * cameraLookOffset.Z;
     }
 
     private void MoveBase()
     {
         desiredCameraLookPosition = CalculateDesiredCameraLookPosition();
 
-        ShapecastHit3D hit;
+        //ShapecastHit3D hit;
 
-        bool anyHit = false;
+        //bool anyHit = false;
 
-        if (IsCameraInsideCollider(out hit))
-        {
-            HandleCameraCollision(hit);
-            anyHit = true;
-        }
+        //if (IsCameraInsideCollider(out hit))
+        //{
+        //    HandleCameraCollision(hit);
+        //    anyHit = true;
+        //}
 
-        if (IsLineOffSightBroken(out hit))
-        {
-            HandleCameraCollision(hit);
-            anyHit = true;
-        }
+        //if (IsLineOffSightBroken(out hit))
+        //{
+        //    HandleCameraCollision(hit);
+        //    anyHit = true;
+        //}
         
-        if (!anyHit)
-        {
-            desiredCameraLookPosition = GlobalPosition + currentCameraLookOffset;
+        //if (!anyHit)
+        //{
+        //    desiredCameraLookPosition = GlobalPosition + currentCameraLookOffset;
 
-            // Move Gradually backwards
-            if (Mathf.Abs(cameraLookOffset.Z) > Mathf.Abs(currentCameraLookOffset.Z))
-            {
-                float step = returnToNormalAfterCollisionSpeed * this.PhysicsDelta();
-                currentCameraLookOffset = currentCameraLookOffset.SmoothDamp(cameraLookOffset, ref smoothVelocity, step, this.PhysicsDelta());
-            }
-        }
+        //    // Move Gradually backwards
+        //    if (Mathf.Abs(cameraLookOffset.Z) > Mathf.Abs(currentCameraLookOffset.Z))
+        //    {
+        //        float step = returnToNormalAfterCollisionSpeed * this.PhysicsDelta();
+        //        currentCameraLookOffset = currentCameraLookOffset.SmoothDamp(cameraLookOffset, ref smoothVelocity, step, this.PhysicsDelta());
+        //    }
+        //}
 
         cameraLook.Position = desiredCameraLookPosition;
     }

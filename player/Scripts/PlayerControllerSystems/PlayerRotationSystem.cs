@@ -7,12 +7,13 @@ public partial class PlayerController
     public void InputRotation(float rotationSpeed)
     {
         if (lockRotation) { return; }
+
         if (InputDirection.Length() >= 0.1f)
         {
             //rotate the player to the direction of the input.
             float x = Mathf.Lerp(Transform.Forward().X, InputDirection.Normalized().X, rotationSpeed);
             float z = Mathf.Lerp(Transform.Forward().Z, InputDirection.Normalized().Z, rotationSpeed);
-            this.SetForward(new Vector3(x, Transform.Forward().Y, z));
+            this.SetForward(new Vector3(x, Transform.Forward().Y, z).Normalized());
         }
     }
 
@@ -30,7 +31,7 @@ public partial class PlayerController
     {
         Vector3 flatVelocity = GetFlatVelocity();
 
-        if(flatVelocity.Length() > 6)
+        if (flatVelocity.Length() > 6)
         {
             return Mathf.Lerp(rotationSmoothMin, 0.05f, flatVelocity.Length() / defaultMaxVelocity);
         }

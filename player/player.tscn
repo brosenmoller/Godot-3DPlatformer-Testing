@@ -16,7 +16,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.944443, 0)
 collision_layer = 16
 collision_mask = 9
 script = ExtResource("1_ihj1y")
-visuals = NodePath("bottomPivot/topPivot/CapsuleMesh")
+visuals = NodePath("bottomPivot/topPivot/Capsule")
 moveSpeed = 20.0
 maxSlopeAngle = 45.0
 GroundLayer = 8
@@ -29,7 +29,7 @@ grappleCheckLayers = 13
 topPivot = NodePath("bottomPivot/topPivot")
 grappleMaxDistance = 15.0
 swingPointTag = "swingPoint"
-startingPlayerActions = Array[int]([0, 2, 3, 4, 5, 6, 7, 8])
+startingPlayerActions = Array[int]([0, 2, 3, 4, 5, 6, 7, 8, 1])
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_ovfu0")
@@ -40,17 +40,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 [node name="topPivot" type="Node3D" parent="bottomPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
-[node name="CapsuleMesh" type="MeshInstance3D" parent="bottomPivot/topPivot"]
+[node name="Capsule" type="Node3D" parent="bottomPivot/topPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-mesh = SubResource("CapsuleMesh_g28df")
-skeleton = NodePath("../../..")
 
-[node name="Eye2" type="MeshInstance3D" parent="bottomPivot/topPivot/CapsuleMesh"]
+[node name="CapsuleMesh" type="MeshInstance3D" parent="bottomPivot/topPivot/Capsule"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_g28df")
+skeleton = NodePath("../../../..")
+
+[node name="Eye2" type="MeshInstance3D" parent="bottomPivot/topPivot/Capsule/CapsuleMesh"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.8, 0.3)
 material_override = ExtResource("1_to0a5")
 mesh = SubResource("SphereMesh_bpkrv")
 
-[node name="Eya1" type="MeshInstance3D" parent="bottomPivot/topPivot/CapsuleMesh"]
+[node name="Eya1" type="MeshInstance3D" parent="bottomPivot/topPivot/Capsule/CapsuleMesh"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.8, 0.3)
 material_override = ExtResource("1_to0a5")
 mesh = SubResource("SphereMesh_bpkrv")

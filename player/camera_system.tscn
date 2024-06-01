@@ -23,9 +23,8 @@ distanceBelowGroundToReactY = 1.0
 
 [node name="CameraBase" type="Node3D" parent="." node_paths=PackedStringArray("cameraLook")]
 script = ExtResource("2_0nbp4")
-inputSensitivityMouse = Vector2(50, 600)
+inputSensitivityMouse = Vector2(0.5, 0.1)
 inputSensitivityGamePad = Vector2(20, 300)
-invertY = true
 cameraLook = NodePath("../Camera3D")
 cameraLookOffset = Vector3(0, 0, -8.5)
 cameraLookSpeed = 50.0

@@ -32,7 +32,7 @@ public partial class PlayerController
         }
         else
         {
-            Vector3 flatVel = new Vector3(v.X, 0, v.Z);
+            Vector3 flatVel = new(v.X, 0, v.Z);
 
             if (flatVel.Length() > maxVelocity)
             {

@@ -56,11 +56,6 @@ public partial class PlayerController
         input = ServiceLocator.Instance.Get<InputService>();
         activePlayerActions = new HashSet<PlayerAction>(startingPlayerActions);
 
-        foreach (PlayerAction playerAction in activePlayerActions)
-        {
-            GD.Print("PlayerAction: " + playerAction.ToString());
-        }
-     
         input.Bindings["movement"].Hold += OnMovementHold;
         input.Bindings["movement"].Canceled += OnMovementCancelled;
         input.Bindings["jump"].Started += OnJumpPerformed;
@@ -90,7 +85,6 @@ public partial class PlayerController
 
     private void OnMovementHold()
     {
-            GD.Print("Hold");
         if (activePlayerActions.Contains(PlayerAction.Move))
         {
             MovementInput = input.Bindings["movement"].ReadValue<Vector2>();

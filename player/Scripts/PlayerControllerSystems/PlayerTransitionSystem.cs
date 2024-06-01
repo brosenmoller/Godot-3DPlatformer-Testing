@@ -162,7 +162,7 @@ public partial class PlayerController
         {
             Vector3 origin = middleStart + (groundCheckPoints[i] * 0.3f);
 
-            DebugDraw3D.DrawArrow(origin, origin + Vector3.Down * distance, Color.Color8(255, 0, 0), 0.1f, false, 0.5f);
+            //DebugDraw3D.DrawArrow(origin, origin + Vector3.Down * distance, Color.Color8(255, 0, 0), 0.1f, false, 0.5f);
             if (this.RayCast3D(origin, Vector3.Down, distance, GroundLayer))
             {
                 return true;
