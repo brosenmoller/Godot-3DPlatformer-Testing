@@ -85,7 +85,7 @@ public partial class PlayerController
         float time = 0;
         while (time < 0.15f)
         {
-            time += (float)GetPhysicsProcessDeltaTime();
+            time += this.PhysicsDelta();
             Vector3 dir = currentForward.Lerp(direction, time / 0.15f);
 
             this.SetForward(dir);
@@ -100,7 +100,6 @@ public partial class PlayerController
         visuals.SetForward(direction);
 
         VisualsDirection = direction;
-        climbRotateCoroutine = null;
     }
 }
 

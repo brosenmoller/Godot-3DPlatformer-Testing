@@ -89,7 +89,7 @@ public class PlayerCameraTarget : MonoBehaviour
     {
         Vector3 newCameraBasePostion = cameraBase.position;
 
-        float flatStep = cameraMoveSpeedFlat * (float)ctx.GetPhysicsProcessDeltaTime();
+        float flatStep = cameraMoveSpeedFlat * ctx.PhysicsDelta();
         newCameraBasePostion.X = Mathf.MoveTowards(cameraBase.position.X, GlobalPosition.X, flatStep);
         newCameraBasePostion.Z = Mathf.MoveTowards(cameraBase.position.Z, GlobalPosition.Z, flatStep);
 
@@ -97,7 +97,7 @@ public class PlayerCameraTarget : MonoBehaviour
         float yDistance01 = Mathf.InverseLerp(0, distanceVerticalTillMaxSpeed, yDistance);
         float ySpeed = Mathf.Lerp(cameraMoveSpeedVerticalMin, cameraMoveSpeedVerticalMax, EaseOut(yDistance01, verticalMoveLerpStrength));
 
-        float verticalStep = ySpeed * (float)ctx.GetPhysicsProcessDeltaTime();
+        float verticalStep = ySpeed * ctx.PhysicsDelta();
         newCameraBasePostion.Y = Mathf.MoveTowards(cameraBase.position.Y, GlobalPosition.Y, verticalStep);
 
         cameraBase.position = newCameraBasePostion;
@@ -116,7 +116,7 @@ public class PlayerCameraTarget : MonoBehaviour
         {
             float newTargetY = playerController.GlobalPosition.Y + cameraOffsetYGrounded;
 
-            if (this.RayCast3D(playerController.GlobalPosition, Vector3.Up, cameraOffsetYGrounded, playerCamera.groundCollisionMask, QueryTriggerInteraction.Ignore))
+            if (this.RayCast3D(playerController.GlobalPosition, Vector3.Up, cameraOffsetYGrounded, playerCamera.groundCollisionMask))
             {
                 newTargetY = playerController.GlobalPosition.Y + airOffsetY;
             }

@@ -779,6 +779,30 @@ namespace MEC
         }
 
         /// <summary>
+        /// Checks if a coroutine is currently running with the given CoroutineHandle
+        /// </summary>
+        /// <param name="handle">The handle of the coroutine to check.</param>
+        /// <returns>A boolean that is true if it is running and false otherwise</returns>
+        public static bool IsCoroutineRunning(CoroutineHandle handle)
+        {
+            if (ActiveInstances[handle.Key] == null)
+            {
+                return false;
+            }
+
+            Timing instance = GetInstance(handle.Key);
+
+            bool foundOne = false;
+
+            if (instance._handleToIndex.ContainsKey(handle))
+            {
+                foundOne = instance.CoindexPeek(instance._handleToIndex[handle]) != null;
+            }
+
+            return foundOne;
+        }
+
+        /// <summary>
         /// This will kill all coroutines running on the main MEC instance and reset the context.
         /// NOTE: If you call this function from within a running coroutine then you MUST end the current
         /// coroutine. If the running coroutine has more work to do you may run a new "part 2" coroutine 

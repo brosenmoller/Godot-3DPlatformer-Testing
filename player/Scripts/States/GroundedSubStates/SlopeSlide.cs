@@ -7,7 +7,7 @@ namespace PlayerStates
         public override void OnPhysicsUpdate()
         {
             SlopeSlideBehaviour();
-            ctx.velocityLibrary[PlayerVelocitySource.slide] += 1 * ctx.SlopeAngle * 0.05f * (float)ctx.GetPhysicsProcessDeltaTime();
+            ctx.velocityLibrary[PlayerVelocitySource.slide] += 1 * ctx.SlopeAngle * 0.05f * ctx.PhysicsDelta();
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] < 0) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 0; }
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] > 14) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 14; }
 
@@ -16,9 +16,9 @@ namespace PlayerStates
 
         private void SlopeSlideBehaviour()
         {
-            ctx.Velocity += PlayerController.GRAVITY * 1.5f * (float)ctx.GetPhysicsProcessDeltaTime() * Vector3.Up;
+            ctx.Velocity += PlayerController.GRAVITY * 1.5f * ctx.PhysicsDelta() * Vector3.Up;
             //Add force that goes down the slope
-            Vector3 DownPlane = ctx.ProjectOnSlope(80 * (float)ctx.GetPhysicsProcessDeltaTime() * Vector3.Down);
+            Vector3 DownPlane = ctx.ProjectOnSlope(80 * ctx.PhysicsDelta() * Vector3.Down);
             ctx.Velocity += DownPlane;
 
             //make sure the speed won't be clamped to 0
@@ -36,7 +36,7 @@ namespace PlayerStates
             {
                 //remove the downward force frome the input because we don't need to add extra down force
                 input -= DownPlane.Normalized();
-                ctx.Velocity += 2 * ctx.moveSpeed * (float)ctx.GetPhysicsProcessDeltaTime() * input;
+                ctx.Velocity += 2 * ctx.moveSpeed * ctx.PhysicsDelta() * input;
             }
 
             Vector3 flatVelocity = ctx.GetFlatVelocity();

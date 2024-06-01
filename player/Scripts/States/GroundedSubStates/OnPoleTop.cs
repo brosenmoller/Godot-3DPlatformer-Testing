@@ -12,13 +12,13 @@ namespace PlayerStates
         {
             ctx.InvokeOnPoleTop();
 
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
             MoveToPoleTop = Timing.RunCoroutine(SmoothMoveToPoleTop(), Segment.PhysicsProcess);
         }
 
         public override void OnExit()
         {
-            ctx.useGravity = true;
+            ctx.UseGravity = true;
 
             if(MoveToPoleTop != null)
             {
@@ -40,7 +40,7 @@ namespace PlayerStates
             while (time < duration)
             {
                 ctx.Velocity = Vector3.Zero;
-                time += (float)ctx.GetPhysicsProcessDeltaTime();
+                time += ctx.PhysicsDelta();
                 ctx.GlobalPosition = startPosition.Lerp(newPosition, time / duration);
 
                 yield return Timing.WaitForOneFrame;

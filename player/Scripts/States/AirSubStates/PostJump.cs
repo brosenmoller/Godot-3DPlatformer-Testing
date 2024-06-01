@@ -1,4 +1,5 @@
 ﻿using Godot;
+using MEC;
 
 namespace PlayerStates
 {
@@ -15,11 +16,7 @@ namespace PlayerStates
         {
             ctx.fallingHeight = ctx.GlobalPosition.Y;
 
-            if (ctx.jumpCoroutine != null)
-            {
-                ctx.StopCoroutine(ctx.jumpCoroutine);
-                ctx.jumpCoroutine = null;
-            }
+            Timing.KillCoroutines(ctx.jumpCoroutine);
 
             ctx.lockRotation = false;
         }
@@ -40,7 +37,7 @@ namespace PlayerStates
 
         private void ModifyGravity()
         {
-            if (ctx.useGravity)
+            if (ctx.UseGravity)
             {
                 ctx.AddForceImmediate(Vector3.Up, PlayerController.GRAVITY * fallMultiplier);
             }
@@ -56,7 +53,7 @@ namespace PlayerStates
                 if (!ctx.InputDirectionFlippedBack())
                 {
                     ctx.AddForceImmediate(direction, ctx.moveSpeed);
-                    ctx.ReflectVelocity(flatVelocity);
+                    //ctx.ReflectVelocity(flatVelocity);
                 }
                 else
                 {

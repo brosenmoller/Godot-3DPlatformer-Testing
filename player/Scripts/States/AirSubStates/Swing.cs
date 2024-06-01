@@ -50,7 +50,7 @@ namespace PlayerStates
             //Vector3 forward = ctx.Transform.Forward();
             //forward.Y = Mathf.Abs(forward.Y);
             //float angle = VectorExtensions.Angle(forward, Vector3.Up);
-            //Vector3 v = ctx.jumpForce / 1.3f * Mathf.InverseLerp(90, 0, angle) * (float)ctx.GetPhysicsProcessDeltaTime(); * Vector3.Up;
+            //Vector3 v = ctx.jumpForce / 1.3f * Mathf.InverseLerp(90, 0, angle) * ctx.PhysicsDelta(); * Vector3.Up;
             ////Destroy Immediatly to prevent hinge continuing to constrain the ridgidbody
             //Object.DestroyImmediate(hingeJoint);
             //ctx.Rigidbody.constraints = ctx.normalConstraints;
@@ -62,7 +62,7 @@ namespace PlayerStates
             //}
             //forward.Y = 0;
             //ctx.Transform.Forward() = forward;
-            //v += ctx.jumpForce / 1.3f * Mathf.InverseLerp(90, 0, angle) * (float)ctx.GetPhysicsProcessDeltaTime(); * ctx.Transform.Forward();
+            //v += ctx.jumpForce / 1.3f * Mathf.InverseLerp(90, 0, angle) * ctx.PhysicsDelta(); * ctx.Transform.Forward();
             //ctx.Velocity = v;
             //ctx.divesLeft = 1;
             //ctx.swingLockTimer.Restart();

@@ -11,7 +11,7 @@ namespace PlayerStates
             ctx.InvokeOnLedgeEnter();
 
             ctx.Velocity = Vector3.Zero;
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
 
             ctx.SetForward(ctx.ledgeForwardHit.normal);
             ctx.visuals.SetForward(-ctx.ledgeForwardHit.normal);
@@ -38,19 +38,19 @@ namespace PlayerStates
             //right input and ledge is present to the right
             if (leftRightInput > 0.4f && ctx.RayCast3D(rayDownStart + ctx.visuals.Transform.Right() * 0.3f, Vector3.Down, out var downHit, 0.8f, ctx.GroundLayer))
             {
-                ctx.GlobalPosition += ledgeSpeed * (float)ctx.GetPhysicsProcessDeltaTime() * ctx.ledgeDirection;
+                ctx.GlobalPosition += ledgeSpeed * ctx.PhysicsDelta() * ctx.ledgeDirection;
                 return;
             }
             //left input and ledge is present to the left
             if (leftRightInput < -0.4f && ctx.RayCast3D(rayDownStart + -ctx.visuals.Transform.Right() * 0.3f, Vector3.Down, out var downHit2, 0.8f, ctx.GroundLayer))
             {
-                ctx.GlobalPosition += ledgeSpeed * (float)ctx.GetPhysicsProcessDeltaTime() * -ctx.ledgeDirection;
+                ctx.GlobalPosition += ledgeSpeed * ctx.PhysicsDelta() * -ctx.ledgeDirection;
                 return;
             }
             if (ctx.ledgeIsHangingPoint) { return; }
             if (forwardBackInput < -0.4f)
             {
-                ctx.ledgeMoveBackTime += (float)ctx.GetPhysicsProcessDeltaTime();
+                ctx.ledgeMoveBackTime += ctx.PhysicsDelta();
             }
             else
             {
@@ -64,7 +64,7 @@ namespace PlayerStates
 
                 if (!ctx.RayCast3D(rayUpStart, Vector3.Up, 0.8f, ctx.GroundLayer))
                 {
-                    ctx.ledgeMoveForwardTime += (float)ctx.GetPhysicsProcessDeltaTime();
+                    ctx.ledgeMoveForwardTime += ctx.PhysicsDelta();
                 }
                 else
                 {
@@ -82,7 +82,7 @@ namespace PlayerStates
             ctx.InvokeOnLedgeExit();
 
             ctx.ledgeIsHangingPoint = false;
-            ctx.useGravity = true;
+            ctx.UseGravity = true;
             ctx.ledgeMoveBackTime = 0;
             ctx.ledgeMoveForwardTime = 0;
             ctx.ledgeGrabCoolDown.Restart();

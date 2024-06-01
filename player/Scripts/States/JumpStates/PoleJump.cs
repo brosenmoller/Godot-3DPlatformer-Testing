@@ -25,7 +25,7 @@ namespace PlayerStates
             float minimumJump = 0.2f;
             while ((ctx.jumpPressed || timer < minimumJump) && timer < maxTime)
             {
-                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                timer += ctx.PhysicsDelta();
                 yield return Timing.WaitForOneFrame;
             }
             timer = 0;
@@ -33,7 +33,7 @@ namespace PlayerStates
             float hangingTime = 0.1f;
             while (timer < hangingTime)
             {
-                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                timer += ctx.PhysicsDelta();
                 if (ctx.Velocity.Y != 0)
                 {
                     ctx.ZeroVerticalVelocity();
@@ -45,7 +45,6 @@ namespace PlayerStates
             {
                 ctx.ZeroVerticalVelocity();
             }
-            ctx.jumpCoroutine = null;
         }
     }
 }

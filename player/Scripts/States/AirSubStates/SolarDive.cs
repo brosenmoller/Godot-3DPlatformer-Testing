@@ -20,7 +20,7 @@ namespace PlayerStates
 
             ctx.ZeroVerticalVelocity();
             ctx.Velocity += ctx.Transform.Forward() * diveForce;
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
         }
 
         public override void OnPhysicsUpdate()
@@ -34,7 +34,7 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.useGravity = true;
+            ctx.UseGravity = true;
             ctx.divesLeft = 1;
         }
         private float CalculateDesiredVelocityAdd(float desiredVelocity, float maxForceToAdd, PlayerVelocitySource source)

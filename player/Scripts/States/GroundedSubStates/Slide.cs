@@ -48,7 +48,7 @@ namespace PlayerStates
             }
 
 
-            ctx.velocityLibrary[PlayerVelocitySource.slide] += (downSlope ? 1 : -1) * ctx.SlopeAngle * 0.2f * (float)ctx.GetPhysicsProcessDeltaTime();
+            ctx.velocityLibrary[PlayerVelocitySource.slide] += (downSlope ? 1 : -1) * ctx.SlopeAngle * 0.2f * ctx.PhysicsDelta();
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] < 0) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 0; }
             if (ctx.velocityLibrary[PlayerVelocitySource.slide] > 14) { ctx.velocityLibrary[PlayerVelocitySource.slide] = 14; }
 
@@ -91,7 +91,7 @@ namespace PlayerStates
             float duration = ctx.slideTimer.EndTime / 4;
             while (t < duration)
             {
-                t += (float)ctx.GetProcessDeltaTime();
+                t += ctx.ProcessDelta();
                 Quaternion currentRotation = startRotation.Slerp(endRotation, t / duration);
 
                 ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
@@ -110,7 +110,7 @@ namespace PlayerStates
             float duration = ctx.slideTimer.EndTime / 3;
             while (t < duration)
             {
-                t += (float)ctx.GetProcessDeltaTime();
+                t += ctx.ProcessDelta();
                 Quaternion currentRotation = startRotation.Slerp(endRotation, t / duration);
                 ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
                 yield return null;

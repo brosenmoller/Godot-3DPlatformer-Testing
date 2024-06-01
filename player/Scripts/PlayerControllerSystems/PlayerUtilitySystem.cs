@@ -9,7 +9,7 @@ public partial class PlayerController
 
     public void AddForceImmediate(Vector3 direction, float force)
     {
-        Velocity += force * (float)GetPhysicsProcessDeltaTime() * direction;
+        Velocity += force * this.PhysicsDelta() * direction;
     }
 
     public Vector3 GetFlatVelocity()

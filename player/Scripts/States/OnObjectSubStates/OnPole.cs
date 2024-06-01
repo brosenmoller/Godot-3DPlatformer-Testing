@@ -8,7 +8,7 @@ namespace PlayerStates
         {
             ctx.InvokeOnPole();
 
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
             ctx.Velocity = Vector3.Zero;
             Vector3 poleXZ = ctx.Pole.GlobalPosition;
             poleXZ.Y = 0;
@@ -48,7 +48,7 @@ namespace PlayerStates
                 {
                     if (hit.colliderInfo.collider.IsInGroup(ctx.poleTag))
                     {
-                        yPos += PlayerController.POLECLIMBSPEED * (float)ctx.GetPhysicsProcessDeltaTime();
+                        yPos += PlayerController.POLECLIMBSPEED * ctx.PhysicsDelta();
                     }
                 }
             }
@@ -58,7 +58,7 @@ namespace PlayerStates
                 {
                     if (hit.colliderInfo.collider.IsInGroup(ctx.poleTag))
                     {
-                        yPos -= PlayerController.POLECLIMBSPEED * (float)ctx.GetPhysicsProcessDeltaTime();
+                        yPos -= PlayerController.POLECLIMBSPEED * ctx.PhysicsDelta();
                     }
                 }
 
@@ -71,7 +71,7 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.useGravity = true;
+            ctx.UseGravity = true;
             ctx.poleLockTimer.Reset();
             ctx.canClimb = true;
             ctx.oldWallNormal = new();

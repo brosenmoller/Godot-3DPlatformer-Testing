@@ -16,7 +16,7 @@ namespace PlayerStates
             ctx.grapplePullHasReachedDestination = false;
             ctx.ZeroVelocity();
 
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
 
             ctx.lastGrappleObject = ctx.activeGrapplePoint;
 
@@ -36,7 +36,7 @@ namespace PlayerStates
 
         public override void OnPhysicsUpdate()
         {
-            time += (float)ctx.GetPhysicsProcessDeltaTime();
+            time += ctx.PhysicsDelta();
 
             ctx.GlobalPosition = startPoint.Lerp(ctx.activeGrapplePoint.GlobalPosition, time / desiredTime);
 
@@ -49,7 +49,7 @@ namespace PlayerStates
 
         public override void OnExit()
         {
-            ctx.useGravity = true;
+            ctx.UseGravity = true;
             ctx.Velocity = direction * 12;
             ctx.velocityLibrary[PlayerVelocitySource.grapple] = 3;
             ctx.maintainVelocityLibrary[PlayerVelocitySource.grapple] = false;

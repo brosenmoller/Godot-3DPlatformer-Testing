@@ -155,7 +155,7 @@ public partial class PlayerController
 
     public void ReduceVelocity(PlayerVelocitySource key, float mult)
     {
-        velocityLibrary[key] -= (float)GetProcessDeltaTime() * mult;
+        velocityLibrary[key] -= this.ProcessDelta() * mult;
         if (velocityLibrary[key] <= 0)
         {
             velocityLibrary[key] = 0;
@@ -167,7 +167,7 @@ public partial class PlayerController
     //    //TODO just replace this with actual Collide and Slide
     //    //Detect if we are going to hit something and add reflect velocity to prevent sticking and push the player around it slightly
     //    //Pushing around no longer works
-    //    if (Physics.CapsuleCast(GlobalPosition + new Vector3(0, 0.26f, 0), GlobalPosition + new Vector3(0, 0.9f, 0), 0.49f, direction, out var cHit, 0.2f, GroundLayer, QueryTriggerInteraction.Ignore))
+    //    if (Physics.CapsuleCast(GlobalPosition + new Vector3(0, 0.26f, 0), GlobalPosition + new Vector3(0, 0.9f, 0), 0.49f, direction, out var cHit, 0.2f, GroundLayer))
     //    {
     //        //maybe wrong
     //        Vector3 normal = cHit.GetCorrectNormalForSphere(direction);

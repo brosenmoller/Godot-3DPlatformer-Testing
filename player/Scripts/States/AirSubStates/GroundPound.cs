@@ -50,7 +50,7 @@ namespace PlayerStates
 
         private void ModifyGravity()
         {
-            if (ctx.useGravity)
+            if (ctx.UseGravity)
             {
                 ctx.AddForceImmediate(Vector3.Up, PlayerController.GRAVITY * fallMultiplier);
             }

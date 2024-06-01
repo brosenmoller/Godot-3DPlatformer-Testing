@@ -9,7 +9,7 @@ namespace PlayerStates
         {
             ctx.InvokeOnWallDownEnter();
 
-            ctx.useGravity = false;
+            ctx.UseGravity = false;
             ctx.climbRotateCoroutine = Timing.RunCoroutine(ctx.RotateTo(-ctx.WallNormal), Segment.PhysicsProcess);
         }
 
@@ -25,17 +25,17 @@ namespace PlayerStates
 
             if (leftRightInput < -0.4f)
             {
-                ctx.GlobalPosition += 4 * (float)ctx.GetPhysicsProcessDeltaTime() * -cross;
+                ctx.GlobalPosition += 4 * ctx.PhysicsDelta() * -cross;
                 return;
             }
             if (leftRightInput > 0.4f)
             {
-                ctx.GlobalPosition += 4 * (float)ctx.GetPhysicsProcessDeltaTime() * cross;
+                ctx.GlobalPosition += 4 * ctx.PhysicsDelta() * cross;
                 return;
             }
             if (forwardBackInput < -0.4f)
             {
-                ctx.wallMoveBackTime += (float)ctx.GetPhysicsProcessDeltaTime();
+                ctx.wallMoveBackTime += ctx.PhysicsDelta();
             }
             else
             {
@@ -47,12 +47,8 @@ namespace PlayerStates
         {
             ctx.InvokeOnWallDownExit();
 
-            ctx.useGravity = true;
-            if (ctx.climbRotateCoroutine != null)
-            {
-                ctx.StopCoroutine(ctx.climbRotateCoroutine);
-                ctx.climbRotateCoroutine = null;
-            }
+            ctx.UseGravity = true;
+            Timing.KillCoroutines(ctx.climbRotateCoroutine);
         }
     }
 }

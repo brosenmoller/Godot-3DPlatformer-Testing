@@ -6,8 +6,8 @@ using MEC;
 public partial class PlayerController : CharacterBody3D
 {
     public const float GRAVITY = 9.81f;
-    public bool useGravity = true;
 
+    public bool UseGravity { get; set; } = true;
     public Vector3 InputDirection { get; private set; }
     public bool SlopeCheckHasHit { get; private set; }
     public Vector3 SlopeNormal { get; private set; }

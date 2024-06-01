@@ -36,7 +36,7 @@ namespace PlayerStates
 
         private void ModifyGravity()
         {
-            if (ctx.useGravity)
+            if (ctx.UseGravity)
             {
                 if (ctx.Velocity.Y < 0)
                 {
@@ -59,7 +59,7 @@ namespace PlayerStates
                 if (!ctx.InputDirectionFlippedBack())
                 {
                     ctx.AddForceImmediate(direction, ctx.moveSpeed);
-                    ctx.ReflectVelocity(flatVelocity);
+                    //ctx.ReflectVelocity(flatVelocity);
                 }
                 else
                 {

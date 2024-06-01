@@ -31,7 +31,7 @@ namespace PlayerStates
 
             while (timer < maxTime)
             {
-                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                timer += ctx.PhysicsDelta();
                 yield return Timing.WaitForOneFrame;
             }
             timer = 0;
@@ -39,7 +39,7 @@ namespace PlayerStates
             //keep the player in the air for a few frames after ending the up velocity of a jump
             while (timer < hangingTime)
             {
-                timer += (float)ctx.GetPhysicsProcessDeltaTime();
+                timer += ctx.PhysicsDelta();
                 if (ctx.Velocity.Y != 0)
                 {
                     ctx.ZeroVerticalVelocity();
@@ -52,8 +52,6 @@ namespace PlayerStates
             {
                 ctx.ZeroVerticalVelocity();
             }
-
-            ctx.jumpCoroutine = null;
         }
     }
 }

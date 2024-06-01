@@ -59,7 +59,7 @@ namespace PlayerStates
         {
             if (ctx.MovementInput.LengthSquared() < 0.0001f)
             {
-                float newSpeed = ctx.Velocity.Length() - (float)ctx.GetPhysicsProcessDeltaTime() * noInputVelocityReductionMultiplier;
+                float newSpeed = ctx.Velocity.Length() - ctx.PhysicsDelta() * noInputVelocityReductionMultiplier;
                 ctx.Velocity = newSpeed * ctx.Velocity.Normalized();
             }
         }

@@ -1,10 +1,47 @@
 ﻿using Godot.Collections;
 using Godot;
+using static Godot.TextServer;
 
 public static class GodotPhysicsExtensions
 {
+    public static RaycastHit3D ConvertShapeHitToRayHit(this in ShapecastHit3D shapeHit)
+    {
+        return new RaycastHit3D
+        {
+            point = shapeHit.overlapInfo.point,
+            normal = shapeHit.lastSafeLocation - shapeHit.overlapInfo.point,
+            distance = shapeHit.distance,
+            colliderInfo = shapeHit.overlapInfo.allColliders[0]
+        };
+    }
+
+    public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    {
+        if (!direction.IsNormalized())
+        {
+            GD.PrintErr("Unnormalized direction in RayCast");
+        }
+
+        PhysicsRayQueryParameters2D query = new()
+        {
+            CollideWithAreas = collideWithAreas,
+            CollideWithBodies = collideWithBodies,
+            HitFromInside = false,
+            From = startPosition,
+            To = startPosition + direction * distance,
+            CollisionMask = layermask,
+        };
+
+        return RayCast2D(node, query, out _);
+    }
+
     public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, out RaycastHit2D hitInfo, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
+        if (!direction.IsNormalized())
+        {
+            GD.PrintErr("Unnormalized direction in RayCast");
+        }
+
         PhysicsRayQueryParameters2D query = new()
         {
             CollideWithAreas = collideWithAreas,
@@ -58,6 +95,8 @@ public static class GodotPhysicsExtensions
             }
         }
 
+        hitInfo.distance = query.From.DistanceTo(hitInfo.point);
+
         try
         {
             hitInfo.colliderInfo.collider = (CollisionObject2D)hitInfo.colliderInfo.colliderObject;
@@ -69,6 +108,11 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
+        if (!direction.IsNormalized())
+        {
+            GD.PrintErr("Unnormalized direction in RayCast");
+        }
+
         PhysicsRayQueryParameters3D query = new()
         {
             CollideWithAreas = collideWithAreas,
@@ -84,6 +128,11 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, out RaycastHit3D hitInfo, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
+        if (!direction.IsNormalized())
+        {
+            GD.PrintErr("Unnormalized direction in RayCast");
+        }
+
         PhysicsRayQueryParameters3D query = new()
         {
             CollideWithAreas = collideWithAreas,
@@ -137,6 +186,8 @@ public static class GodotPhysicsExtensions
             }
         }
 
+        hitInfo.distance = query.From.DistanceTo(hitInfo.point);
+
         try
         {
             hitInfo.colliderInfo.collider = (CollisionObject3D)hitInfo.colliderInfo.colliderObject;
@@ -147,6 +198,19 @@ public static class GodotPhysicsExtensions
         }
 
         return true;
+    }
+
+    public static bool SphereCast3D(this Node3D node, Vector3 startPosition, float radius, Vector3 direction, out ShapecastHit3D hitInfo, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
+    {
+        Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
+        PhysicsServer3D.ShapeSetData(shapeRid, radius);
+
+        if (!direction.IsNormalized())
+        {
+            GD.PrintErr("Unnormalized direction in ShapeCast");
+        }
+
+        return StartShapeCast3D(shapeRid, node, startPosition, startPosition + direction * distance, out hitInfo, collisionMask, collideWithAreas, collideWithBodies);
     }
 
     public static bool SphereCast3D(this Node3D node, Vector3 startPosition, float radius, Vector3 endPosition, out ShapecastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
@@ -214,10 +278,14 @@ public static class GodotPhysicsExtensions
         }
 
         Vector3 startPosition = query.Transform.Origin;
+
         float distance = query.Motion.Length();
+        float safeDistance = distance * safeProportion;
+        hitInfo.distance = safeDistance;
+
         Vector3 direction = query.Motion / distance;
 
-        hitInfo.lastSafeLocation = startPosition + distance * safeProportion * direction;
+        hitInfo.lastSafeLocation = startPosition + direction * safeDistance;
 
         PhysicsShapeQueryParameters3D restInfoQuery = query;
         restInfoQuery.Transform = new Transform3D(query.Transform.Basis, hitInfo.lastSafeLocation + direction * 0.01f);

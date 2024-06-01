@@ -78,8 +78,8 @@ public partial class PlayerController
         stateMachine.AddTransition(new Transition(typeof(GrappleSwing),     typeof(AirMovement),        () => !GrappleInput()));
         stateMachine.AddTransition(new Transition(typeof(GrapplePull),      typeof(AirMovement),        GrapplePullDone));
 
-        stateMachine.AddTransition(new Transition(typeof(AirMovement),      typeof(Swing),              SwingPointOverlap));
-        stateMachine.AddTransition(new Transition(typeof(PostJump),         typeof(Swing),              SwingPointOverlap));
+        //stateMachine.AddTransition(new Transition(typeof(AirMovement),      typeof(Swing),              SwingPointOverlap));
+        //stateMachine.AddTransition(new Transition(typeof(PostJump),         typeof(Swing),              SwingPointOverlap));
     }
 
     private void SetupJumpTransitions()
@@ -111,7 +111,7 @@ public partial class PlayerController
         stateMachine.AddTransition(new Transition(typeof(PoleJump),         typeof(PostJump),           NoCondition));
 
         // Post Jump
-        stateMachine.AddTransition(new Transition(typeof(PostJump),         typeof(AirMovement),        () => jumpCoroutine == null));
+        stateMachine.AddTransition(new Transition(typeof(PostJump),         typeof(AirMovement),        () => Timing.IsCoroutineRunning(jumpCoroutine)));
         stateMachine.AddTransition(new Transition(typeof(PostJump),         typeof(GroundedRoot),       () => GroundCheck() && postJumpGroundCheckDelayTimer.IsFinished));
     }
 
@@ -272,14 +272,7 @@ public partial class PlayerController
     private bool CanStandUpCheckerRaycast()
     {
         Vector3 rayUpStart = GlobalPosition;
-        if (this.RayCast3D(rayUpStart, Vector3.Up, out var upHit, 0.8f, GroundLayer))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return !this.RayCast3D(rayUpStart, Vector3.Up, out _, 0.8f, GroundLayer);
     }
 
     private bool LedgeGrabChecker()
@@ -408,7 +401,7 @@ public partial class PlayerController
         {
             if (!colliderInfo.collider.IsInGroup(poleTag)) { continue; }
 
-            float yPos = GlobalPosition.Y + POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
+            float yPos = GlobalPosition.Y + POLECLIMBSPEED * this.PhysicsDelta();
             
             Vector3 polePos = colliderInfo.collider.GlobalPosition;
             polePos.Y = 0;
@@ -449,7 +442,7 @@ public partial class PlayerController
 
         if (depth > 50) { return false; }
         
-        yPos += POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
+        yPos += POLECLIMBSPEED * this.PhysicsDelta();
         
         return MoveUpTillPoleFound(collider, direction, position, yPos, ++depth);
     }
@@ -470,7 +463,7 @@ public partial class PlayerController
 
         if (depth > 50) { return false; }
         
-        yPos -= POLECLIMBSPEED * (float)GetPhysicsProcessDeltaTime();
+        yPos -= POLECLIMBSPEED * this.PhysicsDelta();
         
         return MoveDownTillPoleFound(collider, direction, position, yPos, ++depth);
     }
@@ -622,7 +615,7 @@ public partial class PlayerController
 
         while (currentTime < grappleDelayTime)
         {
-            currentTime += (float)GetProcessDeltaTime();
+            currentTime += this.ProcessDelta();
 
             if (!grapplePressed)
             {
@@ -643,7 +636,8 @@ public partial class PlayerController
         }
         else
         {
-            stateMachine.ChangeState(typeof(GrappleSwing));
+            GD.Print("Grapple Swing not connected");
+            //stateMachine.ChangeState(typeof(GrappleSwing));
         }
     }
     //--------------------------------------------------------------------------------------------------

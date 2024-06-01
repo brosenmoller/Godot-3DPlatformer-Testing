@@ -5,7 +5,17 @@ public static class NodeExtensions
 {
     public static void SetForward(this Node3D node, Vector3 forward)
     {
-        node.GlobalBasis = node.GlobalBasis with { Z = -forward };
+        node.GlobalBasis = node.GlobalBasis with { Z = forward };
+    }
+
+    public static float ProcessDelta(this Node node)
+    {
+        return (float)node.GetProcessDeltaTime();
+    }
+
+    public static float PhysicsDelta(this Node node)
+    {
+        return (float)node.GetPhysicsProcessDeltaTime();
     }
 
     /// <summary>
