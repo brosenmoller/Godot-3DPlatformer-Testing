@@ -6,14 +6,15 @@ public partial class GameManager : Node
 
     private ServiceLocator serviceLocator;
 
-    private void Awake()
+    public override void _Ready()
     {
+        GD.Print("GameManager Start");
         serviceLocator = new ServiceLocator();
         ServiceSetup();
 
         Instance ??= this;
     }
-    
+
     private void ServiceSetup()
     {
         serviceLocator.Add(new InputService());

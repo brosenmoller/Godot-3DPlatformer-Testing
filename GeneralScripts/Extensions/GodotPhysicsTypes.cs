@@ -27,6 +27,13 @@ public struct OverlapShape3D
     public Vector3 point;
     public Vector3 normal;
     public ColliderInfo3D[] allColliders;
+
+    public OverlapShape3D()
+    {
+        point = new Vector3();
+        normal = new Vector3();
+        allColliders = System.Array.Empty<ColliderInfo3D>();
+    }
 }
 
 public struct ColliderInfo3D

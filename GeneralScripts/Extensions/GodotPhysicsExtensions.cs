@@ -1,6 +1,5 @@
 ﻿using Godot.Collections;
 using Godot;
-using static Godot.TextServer;
 
 public static class GodotPhysicsExtensions
 {
@@ -17,10 +16,7 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
-        if (!direction.IsNormalized())
-        {
-            GD.PrintErr("Unnormalized direction in RayCast");
-        }
+        direction = direction.Normalized();
 
         PhysicsRayQueryParameters2D query = new()
         {
@@ -37,10 +33,7 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast2D(this CanvasItem node, Vector2 startPosition, Vector2 direction, out RaycastHit2D hitInfo, float distance, uint layermask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
-        if (!direction.IsNormalized())
-        {
-            GD.PrintErr("Unnormalized direction in RayCast");
-        }
+        direction = direction.Normalized();
 
         PhysicsRayQueryParameters2D query = new()
         {
@@ -108,10 +101,7 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
-        if (!direction.IsNormalized())
-        {
-            GD.PrintErr("Unnormalized direction in RayCast");
-        }
+        direction = direction.Normalized();
 
         PhysicsRayQueryParameters3D query = new()
         {
@@ -128,10 +118,7 @@ public static class GodotPhysicsExtensions
 
     public static bool RayCast3D(this Node3D node, Vector3 startPosition, Vector3 direction, out RaycastHit3D hitInfo, float distance, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
-        if (!direction.IsNormalized())
-        {
-            GD.PrintErr("Unnormalized direction in RayCast");
-        }
+        direction = direction.Normalized();
 
         PhysicsRayQueryParameters3D query = new()
         {
@@ -205,10 +192,7 @@ public static class GodotPhysicsExtensions
         Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
         PhysicsServer3D.ShapeSetData(shapeRid, radius);
 
-        if (!direction.IsNormalized())
-        {
-            GD.PrintErr("Unnormalized direction in ShapeCast");
-        }
+        direction = direction.Normalized();
 
         return StartShapeCast3D(shapeRid, node, startPosition, startPosition + direction * distance, out hitInfo, collisionMask, collideWithAreas, collideWithBodies);
     }
@@ -238,7 +222,7 @@ public static class GodotPhysicsExtensions
     private static bool StartShapeCast3D(Rid shapeRid, Node3D node, Vector3 startPosition, Vector3 endPosition, out ShapecastHit3D hitInfo, uint collisionMask = 0xffffffff, bool collideWithAreas = false, bool collideWithBodies = true)
     {
         Vector3 motion = endPosition - startPosition;
-        Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), startPosition);
+        Transform3D transform = new(Basis.Identity, startPosition);
 
         PhysicsShapeQueryParameters3D query = new()
         {
@@ -290,10 +274,9 @@ public static class GodotPhysicsExtensions
         PhysicsShapeQueryParameters3D restInfoQuery = query;
         restInfoQuery.Transform = new Transform3D(query.Transform.Basis, hitInfo.lastSafeLocation + direction * 0.01f);
 
-        if (OverlapShape3D(node, restInfoQuery, out OverlapShape3D info))
-        {
-            hitInfo.overlapInfo = info;
-        }
+        OverlapShape3D(node, restInfoQuery, out OverlapShape3D info);
+
+        hitInfo.overlapInfo = info;
 
         return true;
     }
@@ -303,7 +286,7 @@ public static class GodotPhysicsExtensions
         Rid shapeRid = PhysicsServer3D.SphereShapeCreate();
         PhysicsServer3D.ShapeSetData(shapeRid, radius);
 
-        Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), position);
+        Transform3D transform = new(Basis.Identity, position);
 
         PhysicsShapeQueryParameters3D query = new()
         {
@@ -332,7 +315,7 @@ public static class GodotPhysicsExtensions
 
         PhysicsServer3D.ShapeSetData(shapeRid, capsuleDict);
 
-        Transform3D transform = new(new Basis(1, 0, 0, 0, 1, 0, 0, 0, 1), position);
+        Transform3D transform = new(Basis.Identity, position);
 
         PhysicsShapeQueryParameters3D query = new()
         {
@@ -355,8 +338,20 @@ public static class GodotPhysicsExtensions
         PhysicsDirectSpaceState3D spaceState = node.GetWorld3D().DirectSpaceState;
         Dictionary restInfoResult = spaceState.GetRestInfo(query);
         Array<Dictionary> intersectResult = spaceState.IntersectShape(query);
-
         info = new();
+
+        //DebugDraw3D.DrawSphere(query.Transform.Origin, 0.5f, Color.Color8(0, 0, 255), 0.5f);
+
+
+        //if (intersectResult == null || intersectResult.Count <= 0)
+        //{
+        //    GD.Print("Intersect Result BAd");
+        //}
+
+        //if (restInfoResult == null || restInfoResult.Count <= 0)
+        //{
+        //    GD.Print("restInfoResult Result BAd");
+        //}
 
         if (restInfoResult == null || restInfoResult.Count <= 0 || intersectResult == null || intersectResult.Count <= 0)
         {

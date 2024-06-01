@@ -44,6 +44,7 @@ namespace PlayerStates
             {
                 nextStateType = typeof(SlopeSlide);
             }
+
             //fail safe
             if(ctx.SlopeNormal == Vector3.Zero)
             {

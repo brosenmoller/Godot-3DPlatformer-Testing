@@ -52,13 +52,14 @@ public class VectorInputBinding : InputBinding
             InvokeCanceled();
         }
 
-        if (!Active)
+        if (Active)
         {
-            value = Vector2.Zero;
+            value = Input.GetVector(leftAction, rightAction, downAction, upAction, 0.1f);
+            InvokeHold();
         }
         else
         {
-            value = Input.GetVector(leftAction, rightAction, upAction, downAction);
+            value = Vector2.Zero;
         }
     }
 }

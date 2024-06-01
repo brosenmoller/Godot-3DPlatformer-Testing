@@ -27,10 +27,10 @@ public partial class PlayerController
             {
                 if (hit.colliderInfo.collider != collider) { continue; }
 
-                if (!mainCamera.PointIsInFrustum(hit.colliderInfo.collider.GlobalPosition, new Vector3(0.5f, 0.5f, 0.5f))) { continue; }
+                if (!MainCamera.PointIsInFrustum(hit.colliderInfo.collider.GlobalPosition, new Vector3(0.5f, 0.5f, 0.5f))) { continue; }
 
                 Vector2 hitPosXZ = new(hit.colliderInfo.collider.GlobalPosition.X, hit.colliderInfo.collider.GlobalPosition.Z);
-                Vector2 cameraPosXZ = new(mainCamera.GlobalPosition.X, mainCamera.GlobalPosition.Z);
+                Vector2 cameraPosXZ = new(MainCamera.GlobalPosition.X, MainCamera.GlobalPosition.Z);
                 float sqrDistanceXZCamera = (cameraPosXZ - hitPosXZ).LengthSquared();
 
                 if (sqrDistanceXZCamera < Mathf.Pow(minDistanceCamera, 2)) { continue; }
@@ -41,7 +41,7 @@ public partial class PlayerController
 
         hits = hits.OrderBy(hit =>
         {
-            Vector2 viewPortPoint = mainCamera.UnprojectPosition(hit.colliderInfo.collider.GlobalPosition);
+            Vector2 viewPortPoint = MainCamera.UnprojectPosition(hit.colliderInfo.collider.GlobalPosition);
             viewPortPoint -= new Vector2(0.5f, 0.5f);
 
             return viewPortPoint.LengthSquared();

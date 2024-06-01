@@ -31,7 +31,7 @@ namespace PlayerStates
             Vector3 input = ctx.InputDirection;
             input = ctx.ProjectOnSlope(input);
 
-            float downAngleDot = Vector3.Dot(DownPlane.Normalized(), input);
+            float downAngleDot = DownPlane.Normalized().Dot(input);
             if (downAngleDot > -0.5f && downAngleDot < 0.5f)
             {
                 //remove the downward force frome the input because we don't need to add extra down force

@@ -3,10 +3,11 @@ using Godot;
 
 public class InputService : Service
 {
-    public Dictionary<string, InputBinding> Bindings { get; private set; }
+    public readonly Dictionary<string, InputBinding> Bindings = new();
 
     public InputService() 
     {
+        GD.Print("SetupInput");
         Godot.Collections.Array<StringName> actions = InputMap.GetActions();
 
         for (int i = 0; i < actions.Count; i++)

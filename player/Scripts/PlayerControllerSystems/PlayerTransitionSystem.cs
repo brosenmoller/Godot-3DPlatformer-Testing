@@ -155,11 +155,15 @@ public partial class PlayerController
 
     private bool GroundCheck()
     {
-        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.25f, 0f);
+        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.5f, 0f);
+        float distance = 0.7f;
 
         for (int i = 0; i < groundCheckPoints.Length; i++)
         {
-            if (this.RayCast3D(middleStart + (groundCheckPoints[i] * 0.3f), Vector3.Down, out var _, 0.3f, GroundLayer))
+            Vector3 origin = middleStart + (groundCheckPoints[i] * 0.3f);
+
+            DebugDraw3D.DrawArrow(origin, origin + Vector3.Down * distance, Color.Color8(255, 0, 0), 0.1f, false, 0.5f);
+            if (this.RayCast3D(origin, Vector3.Down, distance, GroundLayer))
             {
                 return true;
             }
@@ -170,11 +174,14 @@ public partial class PlayerController
     private bool GroundReCheck()
     {
         if (SlopeNormal == Vector3.Zero) { return false; }
-        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.25f, 0f);
+        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.5f, 0f);
 
         for (int i = 0; i < groundCheckPoints.Length; i++)
         {
-            if (this.RayCast3D(middleStart + (groundCheckPoints[i] * 0.3f), Vector3.Down, out var _, 0.6f, GroundLayer))
+            Vector3 origin = middleStart + (groundCheckPoints[i] * 0.3f);
+            float distance = 0.7f;
+
+            if (this.RayCast3D(origin, Vector3.Down, distance, GroundLayer))
             {
                 return true;
             }
@@ -182,14 +189,18 @@ public partial class PlayerController
 
         return false;
     }
+
     //Longer Ground check to see if the input should be Slide or Dive
     private bool SlideGroundCheck()
     {
-        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.25f, 0f);
+        Vector3 middleStart = GlobalPosition + new Vector3(0f, -0.5f, 0f);
+        float distance = 1f;
 
         for (int i = 0; i < groundCheckPoints.Length; i++)
         {
-            if (this.RayCast3D(middleStart + (groundCheckPoints[i] * 0.3f), Vector3.Down, out var _, 1, GroundLayer))
+            Vector3 origin = middleStart + (groundCheckPoints[i] * 0.3f);
+
+            if (this.RayCast3D(origin, Vector3.Down, out var _, distance, GroundLayer))
             {
                 if (!OnTooBigSlope())
                 {
@@ -260,7 +271,7 @@ public partial class PlayerController
     private bool OnTooBigSlopeRay()
     {
         Vector3 DownPlane = ProjectOnSlope(Vector3.Down);
-        if (this.RayCast3D(GlobalPosition + new Vector3(0f, -0.25f, 0f), DownPlane, out var _, 2.5f, GroundLayer)) return false;
+        if (this.RayCast3D(GlobalPosition + new Vector3(0f, 0.25f, 0f), DownPlane, out var _, 2.5f, GroundLayer)) return false;
         return OnTooBigSlope();
     }
 
@@ -352,7 +363,7 @@ public partial class PlayerController
     {
         if (poleLockTimer.IsRunning) { return false; }
 
-        Vector3 middle = GlobalPosition + new Vector3(0f, -0.25f, 0f);
+        Vector3 middle = GlobalPosition + new Vector3(0f, 0.25f, 0f);
 
         this.OverlapSphere3D(middle, 0.5f, out OverlapShape3D hitInfo, PoleLayer, true);
 

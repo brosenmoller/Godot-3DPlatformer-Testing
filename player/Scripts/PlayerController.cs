@@ -5,13 +5,13 @@ using MEC;
 
 public partial class PlayerController : CharacterBody3D
 {
-    public const float GRAVITY = 9.81f;
+    public const float GRAVITY = -9.81f;
 
     public bool UseGravity { get; set; } = true;
     public Vector3 InputDirection { get; private set; }
     public bool SlopeCheckHasHit { get; private set; }
-    public Vector3 SlopeNormal { get; private set; }
-    public float SlopeAngle { get; private set; }
+    public Vector3 SlopeNormal { get; set; }
+    public float SlopeAngle { get; set; }
     public Vector2 MovementInput { get; private set; }
     public Vector3 VisualsDirection { get; set; }
     public CollisionObject3D PoleTopCollider { get; private set; }
@@ -23,11 +23,9 @@ public partial class PlayerController : CharacterBody3D
     public Vector3 WallNormal { get; private set; }
     public Vector3 ClimbDirection { get; private set; }
     public CollisionShape3D PlayerCollider { get; private set; }
-
+    public Camera3D MainCamera { get; private set; }
     public Vector3 SolarDiveDirection { get; set; }
 
-    [Export]
-    private Camera3D mainCamera;
 
     [Export]
     private bool debugStateMachine;
@@ -61,7 +59,10 @@ public partial class PlayerController : CharacterBody3D
     // the Max Angle the player can normaly walk on
     [Export]
     public float maxSlopeAngle;
+
+    [Export]
     public float slopeJumpHeight;
+
 
     [ExportCategory("Ground")]
     [Export(PropertyHint.Layers3DPhysics)]
@@ -78,9 +79,11 @@ public partial class PlayerController : CharacterBody3D
     [Export]
     private float rotationSmoothMin = 1;
 
+    [Export]
+    public bool lockRotation;
+
     // Any dot product lower then this is a full direction change
     private const float fullDirectionChangeCheck = -0.5f;
-    public bool lockRotation;
 
 
     [ExportCategory("Jumping")]
@@ -131,14 +134,16 @@ public partial class PlayerController : CharacterBody3D
     public Internal.Timer groundPoundLandTimer;
     public Internal.Timer solarDiveTimer;
 
-    [ExportCategory("Ledge Hanging")]
-    public float ledgeMoveBackTime = 0;
-    public float ledgeMoveForwardTime = 0;
 
+    [ExportCategory("Ledge Hanging")]
     [Export]
     public bool ledgeIsHangingPoint;
 
+    public float ledgeMoveBackTime = 0;
+    public float ledgeMoveForwardTime = 0;
+
     public Internal.Timer ledgeGrabCoolDown;
+
 
     [ExportCategory("Poles")]
     [Export(PropertyHint.Layers3DPhysics)]
@@ -185,6 +190,18 @@ public partial class PlayerController : CharacterBody3D
     [Export]
     private float minDistanceCamera = 8.5f;
 
+    [Export]
+    public float grappleMaxDistance = 30;
+
+    [Export]
+    public float grappleMinDistance = 2;
+
+    [Export]
+    public float swingSpeed = 5;
+
+    [Export]
+    public float desiredTimeToReachGrapple = 0.5f;
+
     private bool grapplePressed;
     private bool grapplePressCanTrigger;
     private float grappleDelayTime = 0.3f;
@@ -192,10 +209,7 @@ public partial class PlayerController : CharacterBody3D
     private Node3D selectionGrapplePoint;
 
     public bool grapplePullHasReachedDestination;
-    public float grappleMaxDistance = 30;
-    public float grappleMinDistance = 2;
-    public float swingSpeed = 5;
-    public float desiredTimeToReachGrapple = 0.5f;
+    
     public Node3D activeGrapplePoint;
     public Node3D lastGrappleObject;
     public Internal.Timer grappleCooldownTimer;
@@ -220,7 +234,8 @@ public partial class PlayerController : CharacterBody3D
         SetupPlayerEvents();
     }
 
-    private void OnDisable()
+
+    public override void _ExitTree()
     {
         DesubscribeCharacterInput();
     }
@@ -249,6 +264,7 @@ public partial class PlayerController : CharacterBody3D
     private void GetReferences()
     {
         PlayerCollider = this.GetChildByType<CollisionShape3D>();
+        MainCamera = this.GetNodeByType<Camera3D>();
     }
 
     private void StateMachineSetup()
@@ -326,7 +342,7 @@ public partial class PlayerController : CharacterBody3D
     private void UpdateInputDirection()
     {
         // Get relative forward direction by finding the distance between the camera and player.
-        Vector3 viewDir = GlobalPosition - new Vector3(mainCamera.GlobalPosition.X, mainCamera.GlobalPosition.Y, mainCamera.GlobalPosition.Z);
+        Vector3 viewDir = GlobalPosition - new Vector3(MainCamera.GlobalPosition.X, MainCamera.GlobalPosition.Y, MainCamera.GlobalPosition.Z);
 
         Vector3 cameraForward = viewDir.Normalized();
         Vector3 cameraRight = new Quaternion(Vector3.Up, 90)  * cameraForward;
@@ -344,16 +360,29 @@ public partial class PlayerController : CharacterBody3D
 
     private void SlopeChecker()
     {
+        SlopeAngle = VectorExtensions.Angle(SlopeNormal, Vector3.Up);
+        SlopeNormal = Vector3.Up;
+        SlopeCheckHasHit = true;
+        return;
+
         Vector3 startPosition = GlobalPosition + new Vector3(0f, playerHeight, 0f);
-        if (this.SphereCast3D(startPosition, 0.5f, startPosition + Vector3.Down * 3f, out ShapecastHit3D hit, GroundLayer, false))
+        Vector3 endPosition = startPosition + Vector3.Down * 5f;
+
+        DebugDraw3D.DrawArrow(startPosition, endPosition, Color.Color8(0, 255, 0), 0.1f, false, 0.5f);
+
+        if (this.SphereCast3D(startPosition, 0.5f, endPosition, out ShapecastHit3D hit, GroundLayer, false))
         {
+            GD.Print("SLope Hit: " + hit.overlapInfo.normal.ToString());
+            
             SlopeNormal = hit.overlapInfo.normal;
-            if (SlopeNormal != Vector3.Up)
+
+            if (!SlopeNormal.ApproximatelyEqual(Vector3.Up))
             {
                 SlopeAngle = VectorExtensions.Angle(SlopeNormal, Vector3.Up);
                 SlopeCheckHasHit = true;
                 return;
             }
+
             SlopeAngle = 0;
             return;
         }

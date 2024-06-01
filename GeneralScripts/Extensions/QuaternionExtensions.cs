@@ -76,7 +76,7 @@ public static class QuaternionExtensions
                 if (currentDirH.AlmostZero())
                 {
                     // We're looking at the north or south pole
-                    if (Vector3.Dot(currentDirH, up) > 0)
+                    if (currentDirH.Dot(up) > 0)
                         currentDirH = Vector3.Down.ProjectOntoPlane(up);
                     else
                         currentDirH = Vector3.Up.ProjectOntoPlane(up);

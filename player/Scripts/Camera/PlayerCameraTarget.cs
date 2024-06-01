@@ -1,12 +1,8 @@
-using System;
 using Godot;
 
-public class PlayerCameraTarget : MonoBehaviour
+public partial class PlayerCameraTarget : Node3D
 {
     [ExportCategory("Movement")]
-    [Export]
-    private PlayerCamera playerCamera;
-
     [Export]
     private float cameraMoveSpeedFlat;
 
@@ -19,7 +15,7 @@ public class PlayerCameraTarget : MonoBehaviour
     [Export]
     private float distanceVerticalTillMaxSpeed;
 
-    [Export, Range(2, 5)]
+    [Export(PropertyHint.Range, "2,5")]
     private float verticalMoveLerpStrength;
 
 
@@ -40,7 +36,7 @@ public class PlayerCameraTarget : MonoBehaviour
     private float distanceBelowGroundToReactY;
 
     private PlayerController playerController;
-    private Transform cameraBase;
+    private PlayerCamera playerCamera;
 
     private Vector3 targetPosition;
 
@@ -48,11 +44,10 @@ public class PlayerCameraTarget : MonoBehaviour
     private bool trackPlayerInAir = false;
     private bool yOverride = false;
 
-
-    private void Awake()
+    public override void _Ready()
     {
-        cameraBase = playerCamera.transform;
-        playerController = FindObjectOfType<PlayerController>();
+        playerCamera = GetParent().GetChildByType<PlayerCamera>();
+        playerController = this.GetNodeByType<PlayerController>();
 
         PlayerController.OnGrounded += OnGrounded;
         PlayerController.OnAir += OnAir;
@@ -67,7 +62,7 @@ public class PlayerCameraTarget : MonoBehaviour
         PlayerController.OnGrappleSwingExit += ExitGrappleSwing;
     }
 
-    private void FixedUpdate()
+    public override void _PhysicsProcess(double delta)
     {
         CalculateTargetY();
         CalculateTargetXZ();
@@ -87,20 +82,20 @@ public class PlayerCameraTarget : MonoBehaviour
 
     private void MoveCameraBaseToTarget()
     {
-        Vector3 newCameraBasePostion = cameraBase.position;
+        Vector3 newCameraBasePostion = playerCamera.GlobalPosition;
 
-        float flatStep = cameraMoveSpeedFlat * ctx.PhysicsDelta();
-        newCameraBasePostion.X = Mathf.MoveTowards(cameraBase.position.X, GlobalPosition.X, flatStep);
-        newCameraBasePostion.Z = Mathf.MoveTowards(cameraBase.position.Z, GlobalPosition.Z, flatStep);
+        float flatStep = cameraMoveSpeedFlat * this.PhysicsDelta();
+        newCameraBasePostion.X = Mathf.MoveToward(playerCamera.GlobalPosition.X, GlobalPosition.X, flatStep);
+        newCameraBasePostion.Z = Mathf.MoveToward(playerCamera.GlobalPosition.Z, GlobalPosition.Z, flatStep);
 
-        float yDistance = Mathf.Abs(GlobalPosition.Y - cameraBase.position.Y);
+        float yDistance = Mathf.Abs(GlobalPosition.Y - playerCamera.GlobalPosition.Y);
         float yDistance01 = Mathf.InverseLerp(0, distanceVerticalTillMaxSpeed, yDistance);
         float ySpeed = Mathf.Lerp(cameraMoveSpeedVerticalMin, cameraMoveSpeedVerticalMax, EaseOut(yDistance01, verticalMoveLerpStrength));
 
-        float verticalStep = ySpeed * ctx.PhysicsDelta();
-        newCameraBasePostion.Y = Mathf.MoveTowards(cameraBase.position.Y, GlobalPosition.Y, verticalStep);
+        float verticalStep = ySpeed * this.PhysicsDelta();
+        newCameraBasePostion.Y = Mathf.MoveToward(playerCamera.GlobalPosition.Y, GlobalPosition.Y, verticalStep);
 
-        cameraBase.position = newCameraBasePostion;
+        playerCamera.GlobalPosition = newCameraBasePostion;
     }
 
     public float EaseOut(float t, float strenght = 2)
@@ -153,52 +148,14 @@ public class PlayerCameraTarget : MonoBehaviour
         trackPlayerInAir = true;
     }
 
-    private void EnterGrappleSwing(Transform grapplePoint)
+    private void EnterGrappleSwing(Node3D grapplePoint)
     {
-        targetPosition.Y = grapplePoint.position.Y - grappleSwingOffsetY;
+        targetPosition.Y = grapplePoint.GlobalPosition.Y - grappleSwingOffsetY;
         yOverride = true;
     }
 
     private void ExitGrappleSwing()
     {
         yOverride = false;
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (playerController == null)
-        {
-            playerController = FindObjectOfType<PlayerController>();
-        }
-
-        Vector3 position = playerController.GlobalPosition;
-        position.Y = playerController.GlobalPosition.Y + cameraOffsetYGrounded;
-        
-        Gizmos.color = Color.Yellow;
-        Gizmos.DrawSphere(position, .1f);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(position, playerCamera.collisionRadius);
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying)
-        {
-            if (playerController == null)
-            {
-                playerController = FindObjectOfType<PlayerController>();
-            }
-
-            if (cameraBase == null)
-            {
-                cameraBase = playerCamera.transform;
-            }
-
-            Vector3 position = playerController.GlobalPosition;
-            position.Y += cameraOffsetYGrounded;
-            GlobalPosition = position;
-            cameraBase.position = position;
-        }
     }
 }

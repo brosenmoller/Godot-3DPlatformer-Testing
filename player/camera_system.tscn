@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfaqe0s2j3ck3"]
+
+[ext_resource type="Script" path="res://player/Scripts/Camera/PlayerCameraTarget.cs" id="1_phk8s"]
+[ext_resource type="Script" path="res://player/Scripts/Camera/PlayerCamera.cs" id="2_0nbp4"]
+
+[node name="CameraSystem" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.832583, 0.5539, 0, -0.5539, 0.832583, 0, 4.96747, 9.6748)
+
+[node name="CameraTarget" type="Node3D" parent="."]
+script = ExtResource("1_phk8s")
+cameraMoveSpeedFlat = 20.0
+cameraMoveSpeedVerticalMin = 2.0
+cameraMoveSpeedVerticalMax = 30.0
+distanceVerticalTillMaxSpeed = 20.0
+verticalMoveLerpStrength = 3.0
+cameraOffsetYGrounded = 1.75
+airOffsetY = 0.5
+grappleSwingOffsetY = 2.0
+distanceFromGroundToReactY = 3.0
+distanceBelowGroundToReactY = 1.0
+
+[node name="CameraBase" type="Node3D" parent="." node_paths=PackedStringArray("cameraLook")]
+script = ExtResource("2_0nbp4")
+inputSensitivityMouse = Vector2(50, 600)
+inputSensitivityGamePad = Vector2(20, 300)
+invertY = true
+cameraLook = NodePath("../Camera3D")
+cameraLookOffset = Vector3(0, 0, -8.5)
+cameraLookSpeed = 50.0
+clampAngleMin = -80.0
+clampAngleMax = 80.0
+useLerp = true
+recenteringSpeed = 500.0
+recenteringSpeedX = 400.0
+recenteringSpeedY = 300.0
+collisionRadius = 0.5
+groundCollisionMask = 8
+playerAndGroundCollisionMask = 24
+collisionIgnoreTag = "collisionIgnore"
+returnToNormalAfterCollisionSpeed = 5.0
+whiskerOriginRecheckHeight = 4.0

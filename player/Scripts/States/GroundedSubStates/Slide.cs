@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using Godot;
 using MEC;
 
@@ -27,12 +27,9 @@ namespace PlayerStates
             ctx.maintainVelocityLibrary[PlayerVelocitySource.slide] = true;
             ctx.maintainVelocityLibrary[PlayerVelocitySource.normal] = true;
 
-            if (slideVisualsCoroutine != null)
-            {
-                ctx.StopCoroutine(slideVisualsCoroutine);
-            }
+            Timing.KillCoroutines(slideVisualsCoroutine);
 
-            slideVisualsCoroutine = ctx.StartCoroutine(SlideRotation());
+            slideVisualsCoroutine = Timing.RunCoroutine(SlideRotation(), Segment.Process);
             //ctx.PlayerCollider.height = 1;
             //ctx.PlayerCollider.center = Vector3.Zero;
         }
@@ -73,11 +70,8 @@ namespace PlayerStates
             ctx.ZeroVerticalVelocity();
             //ctx.velocityLibrary[PlayerVelocitySource.slide] = 0;
 
-            if (slideVisualsCoroutine != null)
-            {
-                ctx.StopCoroutine(slideVisualsCoroutine);
-                slideVisualsCoroutine = ctx.StartCoroutine(SlideRotationBack());
-            }
+            Timing.KillCoroutines(slideVisualsCoroutine);
+            Timing.RunCoroutine(SlideRotationBack(), Segment.Process);
         }
 
         //prototype Visuals
@@ -86,7 +80,7 @@ namespace PlayerStates
             float t = 0;
 
             Quaternion startRotation = Quaternion.Identity;
-            Quaternion endRotation = Quaternion.FromEuler(new Vector3(-90, 0, 0));
+            Quaternion endRotation = Quaternion.FromEuler(new Vector3(-90, 0, 0)).Normalized();
 
             float duration = ctx.slideTimer.EndTime / 4;
             while (t < duration)
@@ -96,7 +90,7 @@ namespace PlayerStates
 
                 ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
 
-                yield return null;
+                yield return Timing.WaitForOneFrame;
             }
             yield return Timing.WaitForSeconds(duration * 2);
         }
@@ -113,7 +107,7 @@ namespace PlayerStates
                 t += ctx.ProcessDelta();
                 Quaternion currentRotation = startRotation.Slerp(endRotation, t / duration);
                 ctx.bottomVisualsPivot.Basis = new Basis(currentRotation);
-                yield return null;
+                yield return Timing.WaitForOneFrame;
             }
         }
     }

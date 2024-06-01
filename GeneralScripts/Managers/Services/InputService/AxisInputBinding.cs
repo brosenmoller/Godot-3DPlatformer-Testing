@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System;
 
 public class AxisInputBinding : InputBinding
 {
@@ -37,13 +38,14 @@ public class AxisInputBinding : InputBinding
             InvokeCanceled();
         }
 
-        if (!Active)
+        if (Active)
         {
-            value = 0f;
+            value = Input.GetAxis(negativeAction, positiveAction);
+            InvokeHold();
         }
         else
         {
-            value = Input.GetAxis(negativeAction, positiveAction);
+            value = 0f;
         }
     }
 }

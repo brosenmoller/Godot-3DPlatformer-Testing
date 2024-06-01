@@ -20,11 +20,7 @@ namespace PlayerStates
         {
             ctx.UseGravity = true;
 
-            if(MoveToPoleTop != null)
-            {
-                ctx.StopCoroutine(MoveToPoleTop);
-                MoveToPoleTop = null;
-            }
+            Timing.KillCoroutines(MoveToPoleTop);
 
             ctx.poleLockTimer.Reset();
         }
@@ -45,8 +41,6 @@ namespace PlayerStates
 
                 yield return Timing.WaitForOneFrame;
             }
-
-            MoveToPoleTop = null;
         }
     }
 }

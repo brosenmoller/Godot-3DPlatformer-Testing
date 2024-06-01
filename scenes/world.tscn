@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://ywu7wqoy8s7d"]
+[gd_scene load_steps=8 format=3 uid="uid://ywu7wqoy8s7d"]
 
 [ext_resource type="PackedScene" uid="uid://bewqhlgjihnfo" path="res://player/player.tscn" id="1_aua2g"]
 [ext_resource type="Material" uid="uid://d3en307fp3rus" path="res://Art/ground_mat.tres" id="1_x40ip"]
+[ext_resource type="PackedScene" uid="uid://dfaqe0s2j3ck3" path="res://player/camera_system.tscn" id="3_j81o2"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_g0ul8"]
 size = Vector2(100, 100)
@@ -9,19 +10,41 @@ size = Vector2(100, 100)
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_340a2"]
 data = PackedVector3Array(50, 0, 50, -50, 0, 50, 50, 0, -50, -50, 0, 50, -50, 0, -50, 50, 0, -50)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y7yvj"]
+transparency = 1
+albedo_color = Color(0.34902, 1, 1, 0.184314)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gtqxw"]
+size = Vector3(1, 1, 0.2)
+
 [node name="WorldRoot" type="Node3D"]
 
-[node name="Player" parent="." instance=ExtResource("1_aua2g")]
-script = null
+[node name="Player" parent="." node_paths=PackedStringArray("selectedPointVisulizer") instance=ExtResource("1_aua2g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.37406, 0)
+debugStateMachine = true
+selectedPointVisulizer = NodePath("../selectedPointVisualizer")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 8
+collision_mask = 25
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
 material_override = ExtResource("1_x40ip")
 mesh = SubResource("PlaneMesh_g0ul8")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("ConcavePolygonShape3D_340a2")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.832583, 0.5539, 0, -0.5539, 0.832583, 0, 4.96747, 9.6748)
+transform = Transform3D(0.444666, 0, 0.895696, 0, 1, 0, -0.895696, 0, 0.444666, 4.16956, 1.87496, 3.92503)
+
+[node name="CameraSystem" parent="." instance=ExtResource("3_j81o2")]
+process_mode = 4
+visible = false
+
+[node name="selectedPointVisualizer" type="Node3D" parent="."]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="selectedPointVisualizer"]
+material_override = SubResource("StandardMaterial3D_y7yvj")
+mesh = SubResource("BoxMesh_gtqxw")

@@ -24,5 +24,10 @@ public class SingleInputBinding : InputBinding
         {
             InvokeCanceled();
         }
+
+        if (Active)
+        {
+            InvokeHold();
+        }
     }
 }

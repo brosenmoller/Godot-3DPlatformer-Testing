@@ -5,8 +5,9 @@ public abstract class InputBinding
 {
     public bool Active { get; protected set; }
 
-    public event Action Performed;
+    public event Action Started;
     public event Action Canceled;
+    public event Action Hold;
 
     protected object value;
     protected object valueRaw;
@@ -51,11 +52,16 @@ public abstract class InputBinding
 
     protected void InvokePerformed()
     {
-        Performed?.Invoke();
+        Started?.Invoke();
     }
 
     protected void InvokeCanceled()
     {
         Canceled?.Invoke();
+    }
+
+    protected void InvokeHold()
+    {
+        Hold?.Invoke();
     }
 }

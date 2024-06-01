@@ -88,7 +88,7 @@ public partial class PlayerCamera : Node3D
 
     private Vector3[] verticalWhiskers;
 
-    private void Awake()
+    public override void _Ready()
     {
         verticalWhiskers = new Vector3[8];
 
@@ -96,31 +96,40 @@ public partial class PlayerCamera : Node3D
 
         player = this.GetNodeByType<PlayerController>();
 
-        Input.MouseMode = Input.MouseModeEnum.Captured;
-    }
+        //Input.MouseMode = Input.MouseModeEnum.Captured;
 
-    private void Start()
-    {
         input = ServiceLocator.Instance.Get<InputService>();
 
-        input.Bindings["Camera"].Performed += CameraInput;
-        input.Bindings["Camera"].Canceled += CancelCamera;
+        //input.Bindings["Camera"].Performed += CameraInput;
+        //input.Bindings["Camera"].Canceled += CancelCamera;
 
-        input.Bindings["recenter"].Performed += RecenterCamera;
+        input.Bindings["recenter"].Started += RecenterCamera;
     }
 
-    private void OnDisable()
+    public override void _ExitTree()
     {
         if (input != null)
         {
-            input.Bindings["Camera"].Performed -= CameraInput;
-            input.Bindings["Camera"].Canceled -= CancelCamera;
+            //input.Bindings["Camera"].Performed -= CameraInput;
+            //input.Bindings["Camera"].Canceled -= CancelCamera;
 
-            input.Bindings["recenter"].Performed -= RecenterCamera;
+            input.Bindings["recenter"].Started -= RecenterCamera;
         }
     }
 
-    private void FixedUpdate()
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event is InputEventMouseMotion mouseEvent)
+        {
+            cameraInput = mouseEvent.Relative;
+        }
+        else
+        {
+            cameraInput = Vector2.Zero;
+        }
+    }
+
+    public override void _PhysicsProcess(double delta)
     {
         if (player.activePlayerActions.Contains(PlayerAction.Camera))
         {
@@ -183,8 +192,9 @@ public partial class PlayerCamera : Node3D
 
         rotation.X = Mathf.Clamp(rotation.X, clampAngleMin, clampAngleMax);
 
-        Quaternion orbitQuaternion = Quaternion.FromEuler(new Vector3(rotation.X, rotation.Y, 0.0f));
-        Basis = new Basis(GlobalTransform.Basis.GetRotationQuaternion().Slerp(orbitQuaternion, this.PhysicsDelta() * 10));
+        Quaternion orbitQuaternion = Quaternion.FromEuler(new Vector3(rotation.X, rotation.Y, 0.0f)).Normalized();
+        Quaternion currentQuaterion = GlobalTransform.Basis.GetRotationQuaternion().Normalized();
+        Basis = new Basis(currentQuaterion.Slerp(orbitQuaternion, this.PhysicsDelta() * 10));
     }
 
     private Vector3 CalculateDesiredCameraLookPosition()

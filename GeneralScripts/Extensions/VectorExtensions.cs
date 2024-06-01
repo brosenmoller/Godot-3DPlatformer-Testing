@@ -119,7 +119,7 @@ public static class VectorExtensions
             if (Mathf.Abs(pq.Cross(p)) < 0.00001f)
             {
                 // The lines are colinear.  Do the segments touch?
-                var dotPQ = Vector2.Dot(q, p);
+                var dotPQ = q.Dot(p);
 
                 if (dotPQ > 0 && (p1 - q2).LengthSquared() < 0.001f)
                 {
