@@ -150,11 +150,13 @@ public partial class PlayerCamera : Node3D
 
     private void RotateCameraLook()
     {
-        //Vector3 cameraDirection = (GlobalPosition - cameraLook.GlobalPosition).Normalized();
+        Vector3 cameraDirection = GlobalPosition - cameraLook.GlobalPosition;
         //float step = cameraLookSpeed * this.PhysicsDelta();
         //this.SetForward(cameraLook.Transform.Forward().Lerp(cameraDirection, step));
-        
-        cameraLook.LookAt(GlobalPosition);
+        if (cameraDirection.Length() > 0.0001f)
+        {
+            cameraLook.LookAt(GlobalPosition);
+        }
     }
 
     private float xRotation = 0.0f;
@@ -219,22 +221,22 @@ public partial class PlayerCamera : Node3D
     {
         desiredCameraLookPosition = CalculateDesiredCameraLookPosition();
 
-        //ShapecastHit3D hit;
+        ShapecastHit3D hit;
 
-        //bool anyHit = false;
+        bool anyHit = false;
 
-        //if (IsCameraInsideCollider(out hit))
-        //{
-        //    HandleCameraCollision(hit);
-        //    anyHit = true;
-        //}
+        if (IsCameraInsideCollider(out hit))
+        {
+            HandleCameraCollision(hit);
+            anyHit = true;
+        }
 
-        //if (IsLineOffSightBroken(out hit))
-        //{
-        //    HandleCameraCollision(hit);
-        //    anyHit = true;
-        //}
-        
+        if (IsLineOffSightBroken(out hit))
+        {
+            HandleCameraCollision(hit);
+            anyHit = true;
+        }
+
         //if (!anyHit)
         //{
         //    desiredCameraLookPosition = GlobalPosition + currentCameraLookOffset;

@@ -20,7 +20,7 @@ namespace PlayerStates
             ctx.velocityLibrary[PlayerVelocitySource.normal] = ctx.defaultMaxVelocity;
 
             ctx.ZeroVerticalVelocity();
-            ctx.Velocity += (ctx.Transform.Forward() + new Vector3(0, diveUpForce, 0)).Normalized() * diveForce;
+            ctx.Velocity += ((ctx.Transform.Forward() + new Vector3(0, diveUpForce, 0)) * diveForce);
             ctx.AirSpeedClamps();
         }
 

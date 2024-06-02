@@ -5,7 +5,7 @@ using MEC;
 
 public partial class PlayerController : CharacterBody3D
 {
-    public const float GRAVITY = -30f;
+    public const float GRAVITY = -25f;
 
     public bool UseGravity { get; set; } = true;
     public Vector3 InputDirection { get; private set; }
@@ -74,11 +74,11 @@ public partial class PlayerController : CharacterBody3D
     [ExportCategory("Rotation")]
     // rotation at Max player velocity
     [Export]
-    private float rotationSmoothMax = 0.001f;
+    private float rotationSmoothMax = 0.1f;
 
     // rotation at Min player velocity
     [Export]
-    private float rotationSmoothMin = 0.01f;
+    private float rotationSmoothMin = 1.0f;
 
     [Export]
     public bool lockRotation;

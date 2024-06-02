@@ -541,7 +541,7 @@ public partial class PlayerController
 
             if (v.Length() < 3f) { return false; }
 
-            Vector3 toProject = new Quaternion(Transform.Right(), -45) * v;
+            Vector3 toProject = new Quaternion(Transform.Right().Normalized(), -45) * v;
             ClimbDirection = toProject.ProjectOntoPlane(hit.normal).Normalized();
             ClimbDirection = (ClimbDirection + Vector3.Up).Normalized();
             WallNormal = hit.normal;

@@ -19,29 +19,31 @@ public partial class PlayerController
 
     public void VisualsRotation()
     {
-        visuals.SetForward(VisualsDirection);
-        float x = Mathf.Lerp(visuals.Transform.Forward().X, Transform.Forward().X, 0.4f);
-        float z = Mathf.Lerp(visuals.Transform.Forward().Z, Transform.Forward().Z, 0.4f);
-        visuals.SetForward(new Vector3(x, 0, z));
+        visuals.SetForward(-VisualsDirection);
+        float x = Mathf.Lerp(visuals.Transform.Forward().X, Transform.Forward().X, 1.1f);
+        float z = Mathf.Lerp(visuals.Transform.Forward().Z, Transform.Forward().Z, 1.1f);
+        visuals.SetForward(-new Vector3(x, 0, z));
 
         VisualsDirection = visuals.Transform.Forward();
     }
 
     public float GroundRotationBySpeed()
     {
-        Vector3 flatVelocity = GetFlatVelocity();
+        //Vector3 flatVelocity = GetFlatVelocity();
 
-        if (flatVelocity.Length() > 6)
-        {
-            return Mathf.Lerp(rotationSmoothMin, 0.05f, flatVelocity.Length() / defaultMaxVelocity);
-        }
-        return Mathf.Lerp(rotationSmoothMin, rotationSmoothMax, flatVelocity.Length() / defaultMaxVelocity);
+        //if (flatVelocity.Length() > 6)
+        //{
+        //    return Mathf.Lerp(rotationSmoothMin, 0.05f, flatVelocity.Length() / defaultMaxVelocity);
+        //}
+        //return Mathf.Lerp(rotationSmoothMin, rotationSmoothMax, flatVelocity.Length() / defaultMaxVelocity);
+        return 0.5f;
     }
 
     public float AirRotaionBySpeed()
     {
-        Vector3 flatVelocity = GetFlatVelocity();
-        return Mathf.Lerp(1, 0.15f, flatVelocity.Length() / defaultMaxVelocity);
+        //Vector3 flatVelocity = GetFlatVelocity();
+        //return Mathf.Lerp(1, 0.15f, flatVelocity.Length() / defaultMaxVelocity);
+        return 0.7f;
     }
 
     public void VelocityRotation(float rotationSpeed)

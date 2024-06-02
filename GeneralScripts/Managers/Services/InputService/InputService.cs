@@ -20,7 +20,7 @@ public class InputService : Service
             }
         }
 
-        Bindings.Add("movement", new VectorInputBinding("left", "right", "up", "down"));
+        Bindings.Add("movement", new VectorInputBinding("right", "left", "up", "down"));
     }
 
     public override void OnUpdate(float delta)

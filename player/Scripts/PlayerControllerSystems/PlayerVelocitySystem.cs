@@ -88,9 +88,9 @@ public partial class PlayerController
         }
 
         float totalVelocity = 0;
-        foreach (KeyValuePair<PlayerVelocitySource, float> data in velocityLibrary)
+        foreach (var velocitySource in velocityLibrary)
         {
-            totalVelocity += data.Value;
+            totalVelocity += velocitySource.Value;
         }
         MaxVelocity = totalVelocity;
 
@@ -104,9 +104,9 @@ public partial class PlayerController
     //if (grounded || onTopPole || onPole || hangingGrapplePoint)
     public void NormalVelocityReduction()
     {
-        if(MovementInput == Vector2.Zero)
+        if (MovementInput == Vector2.Zero)
         {
-            for(int i= 1; i < 7; i++)
+            for(int i = 1; i < 7; i++)
             {
                 if (!maintainVelocityLibrary[(PlayerVelocitySource)i])
                 {
@@ -115,8 +115,6 @@ public partial class PlayerController
             }
             return;
         }
-
-
 
         float highestVelocity = 0;
         PlayerVelocitySource key = PlayerVelocitySource.none;
@@ -142,7 +140,6 @@ public partial class PlayerController
 
             if (key != PlayerVelocitySource.none)
             {
-                
                 ReduceVelocity(key, 3);
 
                 if (velocityLibrary[key] <= 0)

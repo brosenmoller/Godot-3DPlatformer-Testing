@@ -51,9 +51,9 @@ namespace PlayerStates
 
             ctx.AddForceImmediate(ctx.Transform.Forward(), slideForce);
             
-            ctx.bottomVisualsPivot.Basis = new Basis(Quaternion.FromEuler(new Vector3(-90, 0, 0)));
+            ctx.bottomVisualsPivot.Basis = new Basis(Quaternion.FromEuler(new Vector3(89, 0, 0)));
 
-            ctx.VisualsDirection = ctx.Transform.Forward();
+            ctx.VisualsDirection = -ctx.Transform.Forward();
             ctx.InputRotation(slidingRotationSpeed);
             ctx.GroundedColliderRotation();
             ctx.VelocityRotation(slidingRotationSpeed);
@@ -80,7 +80,7 @@ namespace PlayerStates
             float t = 0;
 
             Quaternion startRotation = Quaternion.Identity;
-            Quaternion endRotation = Quaternion.FromEuler(new Vector3(-90, 0, 0)).Normalized();
+            Quaternion endRotation = Quaternion.FromEuler(new Vector3(89, 0, 0)).Normalized();
 
             float duration = ctx.slideTimer.EndTime / 4;
             while (t < duration)
